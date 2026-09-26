@@ -138,7 +138,15 @@ pull-docs:
 
 generate.init: $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
 
-.PHONY: $(TERRAFORM_PROVIDER_SCHEMA) pull-docs check-terraform-version
+# The package metadata (marketplace readme and icon) is rendered from extensions/.
+package.metadata:
+	@$(INFO) rendering package metadata from extensions
+	@python3 hack/package-metadata.py || $(FAIL)
+	@$(OK) rendering package metadata from extensions
+
+generate.done: package.metadata
+
+.PHONY: $(TERRAFORM_PROVIDER_SCHEMA) pull-docs check-terraform-version package.metadata
 # ====================================================================================
 # Targets
 
