@@ -1,0 +1,53 @@
+apiVersion: network.incus.crossplane.io/v1alpha1
+kind: Peer
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/peer
+  labels:
+    testing.upbound.io/example-name: lan0_lan1
+  name: lan0-lan1
+spec:
+  forProvider:
+    description: A meaningful description
+    networkSelector:
+      matchLabels:
+        testing.upbound.io/example-name: lan0
+    projectSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
+    targetNetworkSelector:
+      matchLabels:
+        testing.upbound.io/example-name: lan1
+    targetProject: default
+
+---
+
+apiVersion: network.incus.crossplane.io/v1alpha1
+kind: Network
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/peer
+  labels:
+    testing.upbound.io/example-name: lan0
+  name: lan0
+spec:
+  forProvider:
+    config: {}
+    name: lan0
+    type: ovn
+
+---
+
+apiVersion: network.incus.crossplane.io/v1alpha1
+kind: Network
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/peer
+  labels:
+    testing.upbound.io/example-name: lan1
+  name: lan1
+spec:
+  forProvider:
+    config: {}
+    name: lan1
+    type: ovn

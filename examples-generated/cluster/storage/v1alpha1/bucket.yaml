@@ -1,0 +1,28 @@
+apiVersion: storage.incus.crossplane.io/v1alpha1
+kind: Bucket
+metadata:
+  annotations:
+    meta.upbound.io/example-id: storage/v1alpha1/bucket
+  labels:
+    testing.upbound.io/example-name: bucket1
+  name: bucket1
+spec:
+  forProvider:
+    poolSelector:
+      matchLabels:
+        testing.upbound.io/example-name: pool1
+
+---
+
+apiVersion: storage.incus.crossplane.io/v1alpha1
+kind: Pool
+metadata:
+  annotations:
+    meta.upbound.io/example-id: storage/v1alpha1/bucket
+  labels:
+    testing.upbound.io/example-name: pool1
+  name: pool1
+spec:
+  forProvider:
+    driver: zfs
+    name: mypool

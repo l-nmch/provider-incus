@@ -1,0 +1,63 @@
+apiVersion: storage.incus.m.crossplane.io/v1alpha1
+kind: Volume
+metadata:
+  name: xptest-vol
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    pool: remote
+    config:
+      size: 64MiB
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: profile.incus.m.crossplane.io/v1alpha1
+kind: Profile
+metadata:
+  name: xptest-profile
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    description: e2e profile
+    config:
+      limits.cpu: "1"
+      limits.memory: 256MiB
+    device:
+      - name: root
+        type: disk
+        properties:
+          pool: remote
+          path: /
+          size: 1GiB
+      - name: eth0
+        type: nic
+        properties:
+          network: xptest-net
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: image.incus.m.crossplane.io/v1alpha1
+kind: Image
+metadata:
+  name: xptest-alpine
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    sourceImage:
+      remote: images
+      name: alpine/3.22
+      type: container
+    alias:
+      - name: xptest-alpine
+        description: e2e cached image
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default

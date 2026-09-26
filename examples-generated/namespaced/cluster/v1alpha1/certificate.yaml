@@ -1,0 +1,12 @@
+apiVersion: cluster.incus.m.crossplane.io/v1alpha1
+kind: Certificate
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cluster/v1alpha1/certificate
+  labels:
+    testing.upbound.io/example-name: client1
+  name: client1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    certificate: ${file("${path.module}/metrics.crt")}

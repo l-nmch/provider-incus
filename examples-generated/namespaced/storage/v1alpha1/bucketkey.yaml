@@ -1,0 +1,50 @@
+apiVersion: storage.incus.m.crossplane.io/v1alpha1
+kind: BucketKey
+metadata:
+  annotations:
+    meta.upbound.io/example-id: storage/v1alpha1/bucketkey
+  labels:
+    testing.upbound.io/example-name: key1
+  name: key1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    poolSelector:
+      matchLabels:
+        testing.upbound.io/example-name: bucket1
+    storageBucketSelector:
+      matchLabels:
+        testing.upbound.io/example-name: bucket1
+
+---
+
+apiVersion: storage.incus.m.crossplane.io/v1alpha1
+kind: Bucket
+metadata:
+  annotations:
+    meta.upbound.io/example-id: storage/v1alpha1/bucketkey
+  labels:
+    testing.upbound.io/example-name: bucket1
+  name: bucket1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    poolSelector:
+      matchLabels:
+        testing.upbound.io/example-name: pool1
+
+---
+
+apiVersion: storage.incus.m.crossplane.io/v1alpha1
+kind: Pool
+metadata:
+  annotations:
+    meta.upbound.io/example-id: storage/v1alpha1/bucketkey
+  labels:
+    testing.upbound.io/example-name: pool1
+  name: pool1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    driver: zfs
+    name: mypool

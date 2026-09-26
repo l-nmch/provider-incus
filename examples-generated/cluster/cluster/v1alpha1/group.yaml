@@ -1,0 +1,15 @@
+apiVersion: cluster.incus.crossplane.io/v1alpha1
+kind: Group
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cluster/v1alpha1/group
+  labels:
+    testing.upbound.io/example-name: amd64
+  name: amd64
+spec:
+  forProvider:
+    description: x86-64 nodes
+    members:
+    - node-1
+    - node-2
+    - node-3

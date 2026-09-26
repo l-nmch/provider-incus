@@ -1,0 +1,38 @@
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: ACL
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/acl
+  labels:
+    testing.upbound.io/example-name: acl1
+  name: acl1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    egress:
+    - action: allow
+      description: DNS to cloudflare public resolvers (UDP)
+      destination: 1.1.1.1,1.0.0.1
+      destinationPort: "53"
+      protocol: udp
+      state: enabled
+    - action: allow
+      description: DNS to cloudflare public resolvers (TCP)
+      destination: 1.1.1.1,1.0.0.1
+      destinationPort: "53"
+      protocol: tcp
+      state: enabled
+    ingress:
+    - action: allow
+      description: Incoming SSH connections
+      destinationPort: "22"
+      protocol: tcp
+      source: '@external'
+      state: logged
+    - action: allow
+      description: DHCP to instance
+      destinationPort: "68"
+      protocol: udp
+      source: '@external'
+      sourcePort: "67"
+      state: enabled

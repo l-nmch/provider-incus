@@ -1,0 +1,14 @@
+apiVersion: network.incus.crossplane.io/v1alpha1
+kind: Integration
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/integration
+  labels:
+    testing.upbound.io/example-name: this
+  name: this
+spec:
+  forProvider:
+    config:
+      ovn.northbound_connection: tcp:[192.0.2.12]:6645,tcp:[192.0.3.13]:6645,tcp:[192.0.3.14]:6645
+      ovn.southbound_connection: tcp:[192.0.2.12]:6646,tcp:[192.0.3.13]:6646,tcp:[192.0.3.14]:6646
+    type: ovn

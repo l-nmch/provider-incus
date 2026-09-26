@@ -1,0 +1,18 @@
+apiVersion: meta.pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-incus
+  annotations:
+    meta.crossplane.io/maintainer: Léo Nonnenmacher (https://github.com/l-nmch)
+    meta.crossplane.io/source: github.com/l-nmch/provider-incus
+    meta.crossplane.io/license: Apache-2.0
+    meta.crossplane.io/description: |
+      Crossplane provider for Incus: projects, instances, profiles, images,
+      storage, networks and cluster configuration.
+    meta.crossplane.io/readme: |
+      Manages Incus resources with Crossplane. Generated with Upjet from
+      lxc/terraform-provider-incus. See
+      https://github.com/l-nmch/provider-incus for configuration and usage.
+spec:
+  capabilities:
+    - SafeStart

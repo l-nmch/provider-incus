@@ -1,0 +1,46 @@
+apiVersion: network.incus.crossplane.io/v1alpha1
+kind: Forward
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/forward
+  labels:
+    testing.upbound.io/example-name: my_forward
+  name: my-forward
+spec:
+  forProvider:
+    config:
+      target_address: 10.150.19.111
+    listenAddress: 10.150.19.10
+    networkSelector:
+      matchLabels:
+        testing.upbound.io/example-name: my_network
+    ports:
+    - description: SSH
+      listenPort: "22"
+      protocol: tcp
+      targetAddress: 10.150.19.112
+      targetPort: "2022"
+    - description: HTTP
+      listenPort: "80"
+      protocol: tcp
+      targetAddress: 10.150.19.112
+      targetPort: "8080"
+
+---
+
+apiVersion: network.incus.crossplane.io/v1alpha1
+kind: Network
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/forward
+  labels:
+    testing.upbound.io/example-name: my_network
+  name: my-network
+spec:
+  forProvider:
+    config:
+      ipv4.address: 10.150.19.1/24
+      ipv4.nat: "true"
+      ipv6.address: fd42:474b:622d:259d::1/64
+      ipv6.nat: "true"
+    name: my-network

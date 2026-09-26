@@ -1,0 +1,15 @@
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: AddressSet
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/addressset
+  labels:
+    testing.upbound.io/example-name: this
+  name: this
+  namespace: crossplane-system
+spec:
+  forProvider:
+    addresses:
+    - 10.0.0.2
+    - 10.0.0.3
+    description: Network Address Set description

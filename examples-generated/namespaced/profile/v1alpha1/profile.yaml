@@ -1,0 +1,42 @@
+apiVersion: profile.incus.m.crossplane.io/v1alpha1
+kind: Profile
+metadata:
+  annotations:
+    meta.upbound.io/example-id: profile/v1alpha1/profile
+  labels:
+    testing.upbound.io/example-name: profile1
+  name: profile1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    config:
+      limits.cpu: 2
+    device:
+    - name: shared
+      properties:
+        path: /tmp
+        source: /tmp
+      type: disk
+    - name: root
+      properties:
+        path: /
+        pool: default
+      type: disk
+
+---
+
+apiVersion: instance.incus.m.crossplane.io/v1alpha1
+kind: Instance
+metadata:
+  annotations:
+    meta.upbound.io/example-id: profile/v1alpha1/profile
+  labels:
+    testing.upbound.io/example-name: test1
+  name: test1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    ephemeral: false
+    image: ubuntu
+    profilesRefs:
+    - name: profile1

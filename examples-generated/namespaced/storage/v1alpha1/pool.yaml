@@ -1,0 +1,15 @@
+apiVersion: storage.incus.m.crossplane.io/v1alpha1
+kind: Pool
+metadata:
+  annotations:
+    meta.upbound.io/example-id: storage/v1alpha1/pool
+  labels:
+    testing.upbound.io/example-name: pool1
+  name: pool1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    config:
+      source: /var/lib/incus/storage-pools/mypool
+    driver: dir
+    name: mypool

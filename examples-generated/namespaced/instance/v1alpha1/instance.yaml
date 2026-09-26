@@ -1,0 +1,15 @@
+apiVersion: instance.incus.m.crossplane.io/v1alpha1
+kind: Instance
+metadata:
+  annotations:
+    meta.upbound.io/example-id: instance/v1alpha1/instance
+  labels:
+    testing.upbound.io/example-name: instance1
+  name: instance1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    config:
+      boot.autostart: true
+      limits.cpu: 2
+    image: images:ubuntu/22.04

@@ -1,0 +1,36 @@
+# Requires a pool supporting buckets (cephobject, or local buckets with
+# core.storage_buckets_address set on the server).
+apiVersion: storage.incus.m.crossplane.io/v1alpha1
+kind: Bucket
+metadata:
+  name: xptest-bucket
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    poolRef:
+      name: xptest-dir
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: storage.incus.m.crossplane.io/v1alpha1
+kind: BucketKey
+metadata:
+  name: xptest-key
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    poolRef:
+      name: xptest-dir
+    storageBucketRef:
+      name: xptest-bucket
+    role: read-only
+  writeConnectionSecretToRef:
+    name: xptest-key-creds
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default

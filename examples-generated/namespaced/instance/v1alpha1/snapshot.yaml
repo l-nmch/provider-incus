@@ -1,0 +1,30 @@
+apiVersion: instance.incus.m.crossplane.io/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    meta.upbound.io/example-id: instance/v1alpha1/snapshot
+  labels:
+    testing.upbound.io/example-name: snap1
+  name: snap1
+  namespace: crossplane-system
+spec:
+  forProvider:
+    instanceSelector:
+      matchLabels:
+        testing.upbound.io/example-name: instance
+
+---
+
+apiVersion: instance.incus.m.crossplane.io/v1alpha1
+kind: Instance
+metadata:
+  annotations:
+    meta.upbound.io/example-id: instance/v1alpha1/snapshot
+  labels:
+    testing.upbound.io/example-name: instance
+  name: instance
+  namespace: crossplane-system
+spec:
+  forProvider:
+    ephemeral: false
+    image: ubuntu

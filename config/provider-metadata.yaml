@@ -1,0 +1,1664 @@
+name: lxc/incus
+resources:
+    incus_certificate:
+        subCategory: ""
+        name: incus_certificate
+        title: ""
+        examples:
+            - name: client1
+              manifest: |-
+                {
+                  "certificate": "${file(\"${path.module}/metrics.crt\")}",
+                  "name": "client1"
+                }
+            - name: prometheus
+              manifest: |-
+                {
+                  "certificate": "${file(\"${path.module}/metrics.crt\")}",
+                  "description": "Prometheus Node Exporter Access",
+                  "name": "prometheus",
+                  "projects": [
+                    "${incus_project.project1.name}"
+                  ],
+                  "restricted": true,
+                  "type": "metrics"
+                }
+              references:
+                projects: incus_project.project1.name
+              dependencies:
+                incus_project.project1: |-
+                    {
+                      "name": "project1"
+                    }
+            - name: mycert
+              manifest: |-
+                {
+                  "certificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+                  "name": "mycert"
+                }
+        argumentDocs:
+            certificate: '- Required - The certificate.'
+            description: '- Optional - Description of the certificate.'
+            fingerprint: '- The fingerprint of the certificate.'
+            name: '- Required - Name of the certificate.'
+            projects: '- Optional -  List of projects to restrict the certificate to.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            restricted: '- Optional -  Restrict the certificate to one or more projects.'
+            type: |-
+                - Optional - The type of certificate to create. Can be one of: client,
+                or metrics. If no type is specified, a client certificate is created.
+        importStatements:
+            - terraform import incus_certificate.mycert <fingerprint>
+    incus_cluster_group:
+        subCategory: ""
+        name: incus_cluster_group
+        title: ""
+        examples:
+            - name: amd64
+              manifest: |-
+                {
+                  "description": "x86-64 nodes",
+                  "members": [
+                    "node-1",
+                    "node-2",
+                    "node-3"
+                  ],
+                  "name": "amd64"
+                }
+            - name: my_group
+              manifest: |-
+                {
+                  "name": "my_group"
+                }
+        argumentDocs:
+            <name>: '- Required - Cluster group name.'
+            <remote>: '- Optional - Remote name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                cluster group config settings.
+            description: '- Optional - Description of the cluster group.'
+            members: '- Optional - List of cluster group members.'
+            name: '- Required - Name of the cluster group.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+        importStatements:
+            - terraform import incus_cluster_group.my_group [<remote>:]<name>
+            - terraform import incus_cluster_group.my_group my_group
+    incus_image:
+        subCategory: ""
+        name: incus_image
+        title: ""
+        examples:
+            - name: alpine
+              manifest: |-
+                {
+                  "source_image": {
+                    "name": "alpine/edge",
+                    "remote": "images"
+                  }
+                }
+              dependencies:
+                incus_instance.test1: |-
+                    {
+                      "ephemeral": false,
+                      "image": "${incus_image.alpine.fingerprint}",
+                      "name": "test1"
+                    }
+            - name: alpine
+              manifest: |-
+                {
+                  "alias": [
+                    {
+                      "description": "Alpine Linux",
+                      "name": "alpine"
+                    },
+                    {
+                      "description": "Alpine Linux Edge",
+                      "name": "alpine-edge"
+                    }
+                  ],
+                  "source_image": {
+                    "name": "alpine/edge",
+                    "remote": "images"
+                  }
+                }
+        argumentDocs:
+            alias.description: '- Optional - A description for the alias.'
+            alias.name: '- Required - The name of the alias.'
+            copied_aliases: |-
+                - The list of aliases that were copied from the
+                source_image.
+            created_at: '- The datetime of image creation, in Unix time.'
+            fingerprint: '- The unique hash fingerprint of the image.'
+            project: '- Optional - Name of the project where the image will be stored.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            source_file: '- Optional - The image file from the local file system from which the image will be created. See reference below.'
+            source_file.data_path: |-
+                - Required - Either the path of an unified image
+                or the rootfs tarball of a split image, depending on
+                metadata_path being provided or not.
+            source_file.metadata_path: '- Optional - Path to the metadata tarball of a split image.'
+            source_image: '- Optional - The source image from which the image will be created. See reference below.'
+            source_image.architecture: '- Optional - The image architecture (e.g. x86_64, aarch64). See Architectures for all possible values.'
+            source_image.copy_aliases: |-
+                - Optional - Whether to copy the aliases of the image from
+                the remote. Valid values are true and false.
+            source_image.name: '- Required - Name of the image.'
+            source_image.remote: '- Required - The remote where the image will be pulled from.'
+            source_image.type: |-
+                - Optional - Type of image to cache. Must be one of container or
+                virtual-machine. Defaults to container.
+            source_instance: '- Optional - The source instance from which the image will be created. See reference below.'
+            source_instance.name: '- Required - Name of the source instance.'
+            source_instance.snapshot: '- Optional - Name of the snapshot of the source instance'
+        importStatements: []
+    incus_instance:
+        subCategory: ""
+        name: incus_instance
+        title: ""
+        examples:
+            - name: instance1
+              manifest: |-
+                {
+                  "config": {
+                    "boot.autostart": true,
+                    "limits.cpu": 2
+                  },
+                  "image": "images:ubuntu/22.04",
+                  "name": "instance1"
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "device": [
+                    {
+                      "name": "volume1",
+                      "properties": {
+                        "path": "/mount/point/in/instance",
+                        "pool": "${incus_storage_pool.pool1.name}",
+                        "source": "${incus_storage_volume.volume1.name}"
+                      },
+                      "type": "disk"
+                    }
+                  ],
+                  "image": "ubuntu",
+                  "name": "instance1"
+                }
+              dependencies:
+                incus_storage_pool.pool1: |-
+                    {
+                      "driver": "zfs",
+                      "name": "mypool"
+                    }
+                incus_storage_volume.volume1: |-
+                    {
+                      "name": "myvolume",
+                      "pool": "${incus_storage_pool.pool1.name}"
+                    }
+            - name: instance2
+              manifest: |-
+                {
+                  "device": [
+                    {
+                      "name": "http",
+                      "properties": {
+                        "connect": "tcp:127.0.0.1:80",
+                        "listen": "tcp:0.0.0.0:80"
+                      },
+                      "type": "proxy"
+                    }
+                  ],
+                  "ephemeral": false,
+                  "image": "ubuntu",
+                  "name": "instance2",
+                  "profiles": [
+                    "default"
+                  ]
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "image": "images:debian/12",
+                  "name": "instance1",
+                  "project": "default"
+                }
+            - name: instance2
+              manifest: |-
+                {
+                  "name": "instance2",
+                  "project": "default",
+                  "source_instance": {
+                    "name": "instance1",
+                    "project": "default"
+                  }
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "name": "instance1",
+                  "project": "default",
+                  "source_file": "/path/to/backup.tar.gz"
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "device": [
+                    {
+                      "name": "storage",
+                      "properties": {
+                        "path": "/",
+                        "pool": "pool-name"
+                      },
+                      "type": "disk"
+                    }
+                  ],
+                  "name": "instance1",
+                  "project": "default",
+                  "source_file": "/path/to/backup.tar.gz"
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "image": "images:debian/12",
+                  "name": "instance1",
+                  "project": "default",
+                  "type": "virtual-machine",
+                  "wait_for": [
+                    {
+                      "type": "agent"
+                    }
+                  ]
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "exec": {
+                    "00-install-ssh": {
+                      "command": [
+                        "apt-get",
+                        "update"
+                      ],
+                      "trigger": "once"
+                    },
+                    "01-install-ssh": {
+                      "command": [
+                        "apt-get",
+                        "install",
+                        "-y",
+                        "openssh-server"
+                      ],
+                      "timeout": "5m",
+                      "trigger": "once"
+                    },
+                    "10-restart-ssh": {
+                      "command": [
+                        "systemctl",
+                        "restart",
+                        "ssh"
+                      ]
+                    }
+                  },
+                  "file": [
+                    {
+                      "content": "${var.ssh_pubkey}",
+                      "create_directories": true,
+                      "gid": 0,
+                      "mode": "0600",
+                      "target_path": "/root/.ssh/authorized_keys",
+                      "uid": 0
+                    }
+                  ],
+                  "image": "images:debian/12",
+                  "name": "instance1"
+                }
+              references:
+                file.content: var.ssh_pubkey
+            - name: instance1
+              manifest: |-
+                {
+                  "image": "images:ubuntu/24.04/cloud",
+                  "name": "instance1",
+                  "project": "default",
+                  "wait_for": [
+                    {
+                      "type": "cloud-init"
+                    }
+                  ]
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "image": "images:debian/12",
+                  "name": "instance1",
+                  "project": "default",
+                  "wait_for": [
+                    {
+                      "delay": "30s",
+                      "type": "delay"
+                    }
+                  ]
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "image": "images:debian/12",
+                  "name": "instance1",
+                  "project": "default",
+                  "wait_for": [
+                    {
+                      "type": "ipv4"
+                    }
+                  ]
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "image": "images:debian/12",
+                  "name": "instance1",
+                  "project": "default",
+                  "wait_for": [
+                    {
+                      "nic": "eth0",
+                      "type": "ipv6"
+                    }
+                  ]
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "image": "images:debian/12",
+                  "name": "instance1",
+                  "project": "default",
+                  "wait_for": [
+                    {
+                      "nic": "eth0",
+                      "type": "ipv4"
+                    },
+                    {
+                      "nic": "eth0",
+                      "type": "ipv6"
+                    }
+                  ]
+                }
+            - name: instance1
+              manifest: |-
+                {
+                  "config": {
+                    "user.access_interface": "eth0"
+                  },
+                  "image": "images:alpine/edge/amd64",
+                  "name": "instance1",
+                  "profiles": [
+                    "default"
+                  ]
+                }
+            - name: myinst
+              manifest: |-
+                {
+                  "image": "images:alpine/edge/amd64",
+                  "name": "c1",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <name>: '- Required - Instance name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            architecture: '- Optional - The instance architecture (e.g. x86_64, aarch64). See Architectures for all possible values.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                instance config settings.
+            description: '- Optional - Description of the instance.'
+            device: '- Optional - Device definition. See reference below.'
+            device.name: '- Required - Name of the device.'
+            device.properties: |-
+                - Required - Map of key/value pairs of
+                device properties.
+            device.type: |-
+                - Required - Type of the device Must be one of none, disk, nic,
+                unix-char, unix-block, usb, gpu, infiniband, proxy, unix-hotplug, tpm, pci.
+            ephemeral: '- Optional - Boolean indicating if this instance is ephemeral. Defaults to false.'
+            exec: '- Optional - Map of exec commands to run on the instance. See reference below.'
+            exec.command: |-
+                - Required - Command to execute as a list of strings where the first
+                element is the executable and the rest are arguments.
+            exec.environment: '- Optional - Map of environment variables to set for the command.'
+            exec.gid: '- Optional - The GID to run the command as.'
+            exec.timeout: '- Optional - Timeout for the command, e.g. 30s or 5m.'
+            exec.trigger: |-
+                - Optional - When to run the command. Supported values are on_change,
+                and once. Defaults to on_change.
+            exec.uid: '- Optional - The UID to run the command as.'
+            exec.working_dir: '- Optional - Working directory for the command.'
+            file: '- Optional - File to upload to the instance. See reference below.'
+            file.content: |-
+                - Required unless source_path is used* - The contents of the file.
+                Use the file() function to read in the content of a file from disk.
+            file.create_directories: |-
+                - Optional - Whether to create the directories leading
+                to the target if they do not exist.
+            file.gid: '- Optional - The GID of the file. Must be an unquoted integer.'
+            file.mode: '- Optional - The octal permissions of the file, must be quoted. Defaults to 0755.'
+            file.source_path: |-
+                - Required unless content is used* - The source path to a file to
+                copy to the instance.
+            file.target_path: |-
+                - Required - The absolute path of the file on the instance,
+                including the filename.
+            file.uid: '- Optional - The UID of the file. Must be an unquoted integer.'
+            image: |-
+                - Optional - Base image from which the instance will be created. Must
+                specify an image accessible from the provider remote.
+            image=<image>: '- Optional - The image used by the instance.'
+            interfaces: '- Map of all instance network interfaces (excluding loopback device). The map key represents the name of the network device (from Incus configuration).'
+            ipv4_address: |-
+                - The IPv4 Address of the instance. See Instance Network
+                Access for more details.
+            ipv6_address: |-
+                - The IPv6 Address of the instance. See Instance Network
+                Access for more details.
+            mac_address: |-
+                - The MAC address of the detected NIC. See Instance Network
+                Access for more details.
+            name: '- Required - Name of the instance.'
+            profiles: |-
+                - Optional - List of Incus config profiles to apply to the new
+                instance. Profile default will be applied if profiles are not set (are null).
+                However, if an empty array ([]) is set as a value, no profiles will be applied.
+            project: '- Optional - Name of the project where the instance will be spawned.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            running: '- Optional - Boolean indicating whether the instance should be started (running). Defaults to true.'
+            source_file: '- Optional - The souce backup file from which the instance should be restored. For handling of storage pool, see examples.'
+            source_instance: '- Optional - The source instance from which the instance will be created. See reference below.'
+            source_instance.name: '- Required - Name of the source instance.'
+            source_instance.project: '- Required - Name of the project in which the source instance exists.'
+            source_instance.snapshot: '- Optional - Name of the snapshot of the source instance'
+            status: '- The status of the instance.'
+            target: '- Optional - Specify a target node in a cluster.'
+            type: '- Optional - Instance type. Can be container, or virtual-machine. Defaults to container.'
+            wait_for: |-
+                - Optional - WaitFor definition. See reference below.
+                If running is set to false or instance is already running (on update), this value has no effect.
+            wait_for.delay: '- Optional - Delay time that should be waited for when type is delay, e.g. 30s.'
+            wait_for.nic: '- Optional - Network interface that should be waited for when type is ipv4 or ipv6.'
+            wait_for.type: '- Required - Type for what should be waited for. Can be agent, cloud-init, delay, ipv4, ipv6 or ready.'
+        importStatements:
+            - terraform import incus_instance.myinst proj/c1,image=images:alpine/edge/amd64
+    incus_instance_snapshot:
+        subCategory: ""
+        name: incus_instance_snapshot
+        title: ""
+        examples:
+            - name: snap1
+              manifest: |-
+                {
+                  "instance": "${incus_instance.instance.name}",
+                  "name": "my-snapshot-1"
+                }
+              references:
+                instance: incus_instance.instance.name
+              dependencies:
+                incus_instance.instance: |-
+                    {
+                      "ephemeral": false,
+                      "image": "ubuntu",
+                      "name": "my-instance"
+                    }
+        argumentDocs:
+            created_at: |-
+                - The time Incus  reported the snapshot was successfully created,
+                in UTC.
+            instance: '- Required - The name of the instance to snapshot.'
+            name: '- Required - Name of the snapshot.'
+            project: '- Optional - Name of the project where the snapshot will be stored.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            stateful: |-
+                - Optional - Set to true to create a stateful snapshot,
+                false for stateless. Stateful snapshots include runtime state. Defaults to
+                false.
+        importStatements: []
+    incus_network:
+        subCategory: ""
+        name: incus_network
+        title: ""
+        examples:
+            - name: new_default
+              manifest: |-
+                {
+                  "config": {
+                    "ipv4.address": "10.150.19.1/24",
+                    "ipv4.nat": "true",
+                    "ipv6.address": "fd42:474b:622d:259d::1/64",
+                    "ipv6.nat": "true"
+                  },
+                  "name": "new_default"
+                }
+              dependencies:
+                incus_instance.test1: |-
+                    {
+                      "ephemeral": false,
+                      "image": "ubuntu",
+                      "name": "test1",
+                      "profiles": [
+                        "${incus_profile.profile1.name}"
+                      ]
+                    }
+                incus_profile.profile1: |-
+                    {
+                      "device": [
+                        {
+                          "name": "eth0",
+                          "properties": {
+                            "nictype": "bridged",
+                            "parent": "${incus_network.new_default.name}"
+                          },
+                          "type": "nic"
+                        },
+                        {
+                          "name": "root",
+                          "properties": {
+                            "path": "/",
+                            "pool": "default"
+                          },
+                          "type": "disk"
+                        }
+                      ],
+                      "name": "profile1"
+                    }
+            - name: internal
+              manifest: |-
+                {
+                  "config": {
+                    "ipv4.address": "192.168.255.1/24"
+                  },
+                  "name": "internal"
+                }
+              dependencies:
+                incus_instance.test1: |-
+                    {
+                      "ephemeral": false,
+                      "image": "ubuntu",
+                      "name": "test1",
+                      "profiles": [
+                        "default",
+                        "${incus_profile.profile1.name}"
+                      ],
+                      "provisioner": {
+                        "local-exec": [
+                          {
+                            "command": "lxc exec local:${self.name} dhclient eth1"
+                          }
+                        ]
+                      }
+                    }
+                incus_profile.profile1: |-
+                    {
+                      "device": [
+                        {
+                          "name": "eth1",
+                          "properties": {
+                            "nictype": "bridged",
+                            "parent": "${incus_network.internal.name}"
+                          },
+                          "type": "nic"
+                        },
+                        {
+                          "name": "root",
+                          "properties": {
+                            "path": "/",
+                            "pool": "default"
+                          },
+                          "type": "disk"
+                        }
+                      ],
+                      "name": "profile1"
+                    }
+            - name: vxtun
+              manifest: |-
+                {
+                  "config": {
+                    "ipv4.address": "192.168.255.1/24",
+                    "ipv6.address": "none",
+                    "tunnel.vxtun.id": 9999,
+                    "tunnel.vxtun.local": "10.1.1.1",
+                    "tunnel.vxtun.protocol": "vxlan",
+                    "tunnel.vxtun.remote": "10.255.1.1"
+                  },
+                  "name": "vxtun"
+                }
+            - name: vxtun
+              manifest: |-
+                {
+                  "config": {
+                    "ipv4.address": "none",
+                    "ipv6.address": "none",
+                    "tunnel.vxtun.id": 9999,
+                    "tunnel.vxtun.local": "10.255.1.1",
+                    "tunnel.vxtun.protocol": "vxlan",
+                    "tunnel.vxtun.remote": "10.1.1.1"
+                  },
+                  "name": "vxtun"
+                }
+            - name: my_network_node1
+              manifest: |-
+                {
+                  "name": "my_network",
+                  "target": "node1"
+                }
+            - name: my_network_node2
+              manifest: |-
+                {
+                  "name": "my_network",
+                  "target": "node2"
+                }
+            - name: my_network
+              manifest: |-
+                {
+                  "config": {
+                    "ipv4.address": "10.150.19.1/24",
+                    "ipv4.nat": "true",
+                    "ipv6.address": "fd42:474b:622d:259d::1/64",
+                    "ipv6.nat": "true"
+                  },
+                  "depends_on": [
+                    "incus_network.my_network_node1",
+                    "incus_network.my_network_node2"
+                  ],
+                  "name": "my_network"
+                }
+            - name: mynet
+              manifest: |-
+                {
+                  "name": "net1",
+                  "project": "proj"
+                }
+            - name: my_network_node1
+              manifest: |-
+                {
+                  "name": "net1",
+                  "project": "proj",
+                  "target": "node1"
+                }
+            - name: my_network_node2
+              manifest: |-
+                {
+                  "name": "net1",
+                  "project": "proj",
+                  "target": "node2"
+                }
+            - name: my_network
+              manifest: |-
+                {
+                  "name": "net1",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <name>: '- Required - Network name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                network config settings. The config should be identical for all resources referencing the same clustered network, only members keys may differ.
+            description: '- Optional - Description of the network. description is mutual exclusive with target. The description can only be set on cluster level (with target not set) or on non-clustered setups.'
+            managed: '- Whether or not the network is managed.'
+            name: |-
+                - Required - Name of the network. This is usually the device the
+                network will appear as to instances.
+            project: '- Optional - Name of the project where the network will be created.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            target: '- Optional - Specify a target node in a cluster.'
+            target=<member>: '- Optional - Cluster node name.'
+            type: |-
+                - Optional - The type of network to create. Can be one of: bridge,
+                macvlan, sriov, ovn, or physical. If no type is specified, a bridge network
+                is created.
+        importStatements:
+            - terraform import incus_network.mynet proj/net1
+            - |-
+              terraform import incus_network.my_network_node1 proj/net1,target=node1
+              terraform import incus_network.my_network_node2 proj/net1,target=node2
+              terraform import incus_network.my_network proj/net1
+    incus_network_acl:
+        subCategory: ""
+        name: incus_network_acl
+        title: ""
+        examples:
+            - name: acl1
+              manifest: |-
+                {
+                  "egress": [
+                    {
+                      "action": "allow",
+                      "description": "DNS to cloudflare public resolvers (UDP)",
+                      "destination": "1.1.1.1,1.0.0.1",
+                      "destination_port": "53",
+                      "protocol": "udp",
+                      "state": "enabled"
+                    },
+                    {
+                      "action": "allow",
+                      "description": "DNS to cloudflare public resolvers (TCP)",
+                      "destination": "1.1.1.1,1.0.0.1",
+                      "destination_port": "53",
+                      "protocol": "tcp",
+                      "state": "enabled"
+                    }
+                  ],
+                  "ingress": [
+                    {
+                      "action": "allow",
+                      "description": "Incoming SSH connections",
+                      "destination_port": "22",
+                      "protocol": "tcp",
+                      "source": "@external",
+                      "state": "logged"
+                    },
+                    {
+                      "action": "allow",
+                      "description": "DHCP to instance",
+                      "destination_port": "68",
+                      "protocol": "udp",
+                      "source": "@external",
+                      "source_port": "67",
+                      "state": "enabled"
+                    }
+                  ],
+                  "name": "my-acl"
+                }
+            - name: acl1
+              manifest: |-
+                {
+                  "name": "acl1",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <name>: '- Required - Network name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            action: '- Required - Action to take for matching traffic, must be one of allow, allow-stateless, drop, reject'
+            config: |-
+                - Optional - Map of key/value pairs of
+                network ACL config settings.
+            description: '- Optional - Description of the network ACL.'
+            destination: '- Optional - Comma-separated list of CIDR or IP ranges, destination subject name selectors (for egress rules), or empty for any'
+            destination_port: '- Optional - If protocol is udp or tcp, then a comma-separated list of ports or port ranges (start-end inclusive), or empty for any'
+            egress: '- Optional - List of network ACL rules for egress traffic. See reference below.'
+            icmp_code: '- Optional - If protocol is icmp4 or icmp6, then ICMP code number, or empty for any'
+            icmp_type: '- Optional - If protocol is icmp4 or icmp6, then ICMP type number, or empty for any'
+            ingress: '- Optional - List of network ACL rules for ingress traffic. See reference below.'
+            name: '- Required - Name of the network ACL.'
+            project: '- Optional - Name of the project where the network ACL will be created.'
+            protocol: '- Optional - If protocol is udp or tcp, then a comma-separated list of ports or port ranges (start-end inclusive), or empty for any'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            source: '- Optional - Comma-separated list of CIDR or IP ranges, source subject name selectors (for ingress rules), or empty for any'
+            source_port: '- Optional - If protocol is udp or tcp, then a comma-separated list of ports or port ranges (start-end inclusive), or empty for any'
+            state: '- Required - State of the rule, must be one of enabled, disabled or logged'
+        importStatements:
+            - terraform import incus_network_acl.acl1 proj/acl1
+    incus_network_address_set:
+        subCategory: ""
+        name: incus_network_address_set
+        title: ""
+        examples:
+            - name: this
+              manifest: |-
+                {
+                  "addresses": [
+                    "10.0.0.2",
+                    "10.0.0.3"
+                  ],
+                  "description": "Network Address Set description",
+                  "name": "Network Address Set"
+                }
+            - name: this
+              manifest: |-
+                {
+                  "addresses": [
+                    "10.0.0.2",
+                    "10.0.0.3"
+                  ],
+                  "description": "Network Address Set description",
+                  "name": "network_address_set"
+                }
+              dependencies:
+                incus_network_acl.this: |-
+                    {
+                      "ingress": [
+                        {
+                          "action": "allow",
+                          "description": "Incoming SSH connections from ${incus_network_address_set.this.name}",
+                          "destination_port": "22",
+                          "protocol": "tcp",
+                          "source": "${incus_network_address_set.this.name}",
+                          "state": "logged"
+                        }
+                      ],
+                      "name": "network_acl"
+                    }
+        argumentDocs:
+            addresses: '- Required - IP addresses of the address set.'
+            config: '- Optional - Map of key/value pairs of network address set config settings'
+            description: Optional - Description of the network address set.
+            name: '- Required - Name of the network address set.'
+            project: '- Optional - Name of the project where the network address set will be created.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+        importStatements: []
+    incus_network_forward:
+        subCategory: ""
+        name: incus_network_forward
+        title: ""
+        examples:
+            - name: my_forward
+              manifest: |-
+                {
+                  "config": {
+                    "target_address": "10.150.19.111"
+                  },
+                  "listen_address": "10.150.19.10",
+                  "network": "${incus_network.my_network.name}",
+                  "ports": [
+                    {
+                      "description": "SSH",
+                      "listen_port": "22",
+                      "protocol": "tcp",
+                      "target_address": "10.150.19.112",
+                      "target_port": "2022"
+                    },
+                    {
+                      "description": "HTTP",
+                      "listen_port": "80",
+                      "protocol": "tcp",
+                      "target_address": "10.150.19.112",
+                      "target_port": "8080"
+                    }
+                  ]
+                }
+              references:
+                network: incus_network.my_network.name
+              dependencies:
+                incus_network.my_network: |-
+                    {
+                      "config": {
+                        "ipv4.address": "10.150.19.1/24",
+                        "ipv4.nat": "true",
+                        "ipv6.address": "fd42:474b:622d:259d::1/64",
+                        "ipv6.nat": "true"
+                      },
+                      "name": "my-network"
+                    }
+            - name: forward1
+              manifest: |-
+                {
+                  "listen_address": "10.150.19.10",
+                  "network_name": "my-network",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <listen-address>: '- Required - IP Listen Address.'
+            <network-name>: '- Required - Network name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                network forward config settings.
+            description: '- Optional - Description of the network forward.'
+            listen_address: '- Required - IP address to listen on.'
+            listen_port: '- Required - Listen port(s) (e.g. 80,90-100)'
+            network: '- Required - Name of the network.'
+            ports: '- Optional - List of port specifications. See reference below.'
+            project: '- Optional - Name of the project where the network forward will be created.'
+            protocol: '- Required - Protocol for the port(s) (tcp or udp). If not set then tcp will be used.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            target_address: '- Required - IP address to forward to'
+            target_port: '- Optional - T arget port(s) (e.g. 70,80-90 or 90), same as listen_port if empty'
+        importStatements:
+            - terraform import incus_network_forward.forward1 proj/my-network/10.150.19.10
+    incus_network_integration:
+        subCategory: ""
+        name: incus_network_integration
+        title: ""
+        examples:
+            - name: this
+              manifest: |-
+                {
+                  "config": {
+                    "ovn.northbound_connection": "tcp:[192.0.2.12]:6645,tcp:[192.0.3.13]:6645,tcp:[192.0.3.14]:6645",
+                    "ovn.southbound_connection": "tcp:[192.0.2.12]:6646,tcp:[192.0.3.13]:6646,tcp:[192.0.3.14]:6646"
+                  },
+                  "name": "ovn-region",
+                  "type": "ovn"
+                }
+            - name: this
+              manifest: |-
+                {
+                  "config": {
+                    "ovn.northbound_connection": "tcp:[192.0.2.12]:6645,tcp:[192.0.3.13]:6645,tcp:[192.0.3.14]:6645",
+                    "ovn.southbound_connection": "tcp:[192.0.2.12]:6646,tcp:[192.0.3.13]:6646,tcp:[192.0.3.14]:6646"
+                  },
+                  "name": "ovn-region",
+                  "type": "ovn"
+                }
+              dependencies:
+                incus_network.default: |-
+                    {
+                      "config": {
+                        "ipv4.address": "192.168.2.0/24",
+                        "ipv4.nat": "true"
+                      },
+                      "name": "default",
+                      "type": "ovn"
+                    }
+                incus_network_peer.this: |-
+                    {
+                      "name": "ovn-peer",
+                      "network": "${incus_network.default.name}",
+                      "target_integration": "${incus_network_integration.this.name}",
+                      "type": "remote"
+                    }
+        argumentDocs:
+            config: '- Optional - Map of key/value pairs of network integration config settings'
+            description: Optional - Description of the network integration.
+            name: '- Required - Name of the network integration.'
+            project: '- Optional - Name of the project where the network will be created.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            type: Required - The type of the network integration. Currently, only supports ovn type.
+        importStatements: []
+    incus_network_peer:
+        subCategory: ""
+        name: incus_network_peer
+        title: ""
+        examples:
+            - name: lan0_lan1
+              manifest: |-
+                {
+                  "description": "A meaningful description",
+                  "name": "lab0-lan1",
+                  "network": "${incus_network.lan0.name}",
+                  "project": "default",
+                  "target_network": "${incus_network.lan1.name}",
+                  "target_project": "default"
+                }
+              references:
+                network: incus_network.lan0.name
+                target_network: incus_network.lan1.name
+              dependencies:
+                incus_network.lan0: |-
+                    {
+                      "config": {},
+                      "name": "lan0",
+                      "type": "ovn"
+                    }
+                incus_network.lan1: |-
+                    {
+                      "config": {},
+                      "name": "lan1",
+                      "type": "ovn"
+                    }
+            - name: lan1_lan0
+              manifest: |-
+                {
+                  "description": "A meaningful description",
+                  "name": "lab1-lan0",
+                  "network": "${incus_network.lan1.name}",
+                  "project": "default",
+                  "target_network": "${incus_network.lan0.name}",
+                  "target_project": "default"
+                }
+              references:
+                network: incus_network.lan1.name
+                target_network: incus_network.lan0.name
+              dependencies:
+                incus_network.lan0: |-
+                    {
+                      "config": {},
+                      "name": "lan0",
+                      "type": "ovn"
+                    }
+                incus_network.lan1: |-
+                    {
+                      "config": {},
+                      "name": "lan1",
+                      "type": "ovn"
+                    }
+        argumentDocs:
+            config: '- Optional - Configuration options as key/value pairs (only user.* custom keys supported)'
+            description: '- Optional - Description of the network peering'
+            name: '- required - Name of the network peering on the local network'
+            network: '- Required - Name of the local network.'
+            project: '- Optional - Name of the project where the network is located.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            target_intergration: '- Optional - Name of the integration (required at create time for remote peers)'
+            target_network: '- required - Which network to create a peering with (required at create time for local peers)'
+            target_project: '- Optional - Which project the target network exists in (required at create time for local peers)'
+            type: '- Optional - Type of network peering'
+        importStatements: []
+    incus_network_zone:
+        subCategory: ""
+        name: incus_network_zone
+        title: ""
+        examples:
+            - name: zone
+              manifest: |-
+                {
+                  "config": {
+                    "dns.nameservers": "ns.custom.example.org",
+                    "peers.ns.address": "127.0.0.1"
+                  },
+                  "name": "custom.example.org"
+                }
+              dependencies:
+                incus_network_zone_record.record: |-
+                    {
+                      "entry": [
+                        {
+                          "type": "CNAME",
+                          "value": "\u003cincus.host.name\u003e."
+                        },
+                        {
+                          "type": "A",
+                          "value": "\u003cincus.host.ip\u003e"
+                        }
+                      ],
+                      "name": "ns",
+                      "zone": "${incus_network_zone.zone.name}"
+                    }
+            - name: myzone
+              manifest: |-
+                {
+                  "name": "zone1",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <name>: '- Required - Network zone name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                network zone_config settings.
+            description: '- Optional - Description of the network zone.'
+            name: '- Required - Name of the network zone.'
+            project: '- Optional - Name of the project where the network zone will be created.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+        importStatements:
+            - terraform import incus_network_zone.myzone proj/zone1
+    incus_network_zone_record:
+        subCategory: ""
+        name: incus_network_zone_record
+        title: ""
+        examples:
+            - name: record
+              manifest: |-
+                {
+                  "entry": [
+                    {
+                      "type": "CNAME",
+                      "value": "\u003cincus.host.name\u003e."
+                    },
+                    {
+                      "type": "A",
+                      "value": "\u003cincus.host.ip\u003e"
+                    }
+                  ],
+                  "name": "ns",
+                  "zone": "${incus_network_zone.zone.name}"
+                }
+              references:
+                zone: incus_network_zone.zone.name
+              dependencies:
+                incus_network_zone.zone: |-
+                    {
+                      "config": {
+                        "dns.nameservers": "ns.custom.example.org",
+                        "peers.ns.address": "127.0.0.1"
+                      },
+                      "name": "custom.example.org"
+                    }
+            - name: myrecord
+              manifest: |-
+                {
+                  "name": "record1",
+                  "project": "proj",
+                  "zone": "zone1"
+                }
+        argumentDocs:
+            <name>: '- Required - Network zone record name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            <zone>: '- Required - Network zone name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                network zone_config settings.
+            description: '- Optional - Description of the network zone.'
+            entry: '- Optional - Entry in network zone record - see below.'
+            entry.ttl: '- Optional - Entry time to live (TTL).'
+            entry.type: '- Required - Entry type. Valid values are DNS record type, e.g. A, AAAA, CNAME, TXT, etc.'
+            entry.value: '- Required - Entry value.'
+            name: '- Required - Name of the network zone record.'
+            project: '- Optional - Name of the project where the network zone record will be created.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            zone: '- Required - Name of the zone to add the entries of this record.'
+        importStatements:
+            - terraform import incus_network_zone_record.myrecord proj/zone1/record1
+    incus_profile:
+        subCategory: ""
+        name: incus_profile
+        title: ""
+        examples:
+            - name: profile1
+              manifest: |-
+                {
+                  "config": {
+                    "limits.cpu": 2
+                  },
+                  "device": [
+                    {
+                      "name": "shared",
+                      "properties": {
+                        "path": "/tmp",
+                        "source": "/tmp"
+                      },
+                      "type": "disk"
+                    },
+                    {
+                      "name": "root",
+                      "properties": {
+                        "path": "/",
+                        "pool": "default"
+                      },
+                      "type": "disk"
+                    }
+                  ],
+                  "name": "profile1"
+                }
+              dependencies:
+                incus_instance.test1: |-
+                    {
+                      "ephemeral": false,
+                      "image": "ubuntu",
+                      "name": "test1",
+                      "profiles": [
+                        "${incus_profile.profile1.name}"
+                      ]
+                    }
+            - name: myprofile
+              manifest: |-
+                {
+                  "name": "profile1",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <name>: '- Required - Profile name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                instance config settings.
+            description: '- Optional - Description of the profile.'
+            device: '- Optional - Device definition. See reference below.'
+            device.name: '- Required - Name of the device.'
+            device.properties: |-
+                - Required - Map of key/value pairs of
+                device properties.
+            device.type: |-
+                - Required - Type of the device Must be one of none, disk, nic,
+                unix-char, unix-block, usb, gpu, infiniband, proxy, unix-hotplug, tpm, pci.
+            name: '- Required - Name of the profile.'
+            project: '- Optional - Name of the project where the profile will be stored.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+        importStatements:
+            - terraform import incus_profile.my_profile [<remote>:][<project>/]<profile_name>
+            - terraform import incus_profile.myprofile proj/profile1
+    incus_project:
+        subCategory: ""
+        name: incus_project
+        title: ""
+        examples:
+            - name: project
+              manifest: |-
+                {
+                  "config": {
+                    "features.images": false,
+                    "features.profiles": false,
+                    "features.storage.buckets": false,
+                    "features.storage.volumes": false
+                  },
+                  "description": "Terraform provider example project",
+                  "name": "project1"
+                }
+              dependencies:
+                incus_instance.instance: |-
+                    {
+                      "image": "images:alpine/edge/amd64",
+                      "name": "instance1",
+                      "project": "${incus_project.project.name}"
+                    }
+            - name: myproj
+              manifest: |-
+                {
+                  "name": "proj1"
+                }
+        argumentDocs:
+            <name>: '- Required - Project name.'
+            <remote>: '- Optional - Remote name.'
+            config: '- Optional - Map of key/value pairs of project config settings.'
+            description: '- Optional - Description of the project.'
+            force_destroy: '- Optional - Whether to delete everything the project contains on destroy so that it can be destroyed without any error.'
+            name: '- Required - Name of the project.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+        importStatements:
+            - terraform import incus_project.myproj proj1
+    incus_server:
+        subCategory: ""
+        name: incus_server
+        title: ""
+        examples:
+            - name: test
+              manifest: |-
+                {
+                  "config": {
+                    "logging.loki01.lifecycle.types": "instance",
+                    "logging.loki01.target.address": "https://loki01.int.example.net",
+                    "logging.loki01.target.password": "bar",
+                    "logging.loki01.target.type": "loki",
+                    "logging.loki01.target.username": "foo",
+                    "logging.loki01.types": "lifecycle,network-acl"
+                  }
+                }
+            - name: local
+              manifest: |-
+                {
+                  "config": {
+                    "core.bgp_address": ":179",
+                    "core.bgp_routerid": "${each.value}"
+                  },
+                  "for_each": "${tomap(local.bgp_routerids)}",
+                  "remote": "${local.remote}",
+                  "target": "${each.key}"
+                }
+              references:
+                remote: local.remote
+                target: each.key
+            - name: global
+              manifest: |-
+                {
+                  "config": {
+                    "core.bgp_asn": "65500"
+                  },
+                  "depends_on": [
+                    "${incus_server.local}"
+                  ],
+                  "remote": "${local.remote}"
+                }
+              references:
+                remote: local.remote
+        argumentDocs:
+            config: |-
+                - Optional - Map of key/value pairs of
+                server config settings.
+            incus_server: |-
+                resources are defined for the same remote, e.g.
+                in order to configure local and global settings for the same feature, they
+                likely need to be defined as dependent (e.g. use depends_on meta argument)
+                in order to ensure proper application of the configuration.
+                Race conditions between multiple instances of incus_server resources are
+                prevented by the provider.
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            target: |-
+                - Optional - Specify a target node in a cluster where the config
+                options should be applied. This is in particular important for config options
+                with local scope.
+        importStatements: []
+    incus_storage_bucket:
+        subCategory: ""
+        name: incus_storage_bucket
+        title: ""
+        examples:
+            - name: bucket1
+              manifest: |-
+                {
+                  "name": "mybucket",
+                  "pool": "${incus_storage_pool.pool1.name}"
+                }
+              references:
+                pool: incus_storage_pool.pool1.name
+              dependencies:
+                incus_storage_pool.pool1: |-
+                    {
+                      "driver": "zfs",
+                      "name": "mypool"
+                    }
+            - name: bucket_from_backup
+              manifest: |-
+                {
+                  "name": "restored-bucket",
+                  "pool": "default",
+                  "source_file": "/path/to/backup.tar.gz"
+                }
+            - name: mybucket
+              manifest: |-
+                {
+                  "name": "bucket1",
+                  "pool": "pool1",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <name>: '- Required - Storage bucket name.'
+            <pool>: '- Required - Storage pool name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                storage bucket config settings.
+                Config settings vary depending on the Storage Pool used.
+            description: '- Optional - Description of the storage bucket.'
+            incus_storage_bucket_key: resource.
+            location: '- Name of the node where storage bucket was created. It could be useful with Incus in cluster mode.'
+            name: '- Required - Name of the storage bucket.'
+            pool: '- Required - Name of storage pool to host the storage bucket.'
+            project: '- Optional - Name of the project where the storage bucket will be stored.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            source_file: '- Optional - Path to a backup file from which the bucket will be created.'
+            target: '- Optional - Specify a target node in a cluster.'
+        importStatements:
+            - terraform import incus_storage_bucket.bucket1 proj/pool1/bucket1
+    incus_storage_bucket_key:
+        subCategory: ""
+        name: incus_storage_bucket_key
+        title: ""
+        examples:
+            - name: key1
+              manifest: |-
+                {
+                  "name": "mykey",
+                  "pool": "${incus_storage_bucket.bucket1.pool}",
+                  "storage_bucket": "${incus_storage_bucket.bucket1.name}"
+                }
+              references:
+                pool: incus_storage_bucket.bucket1.pool
+                storage_bucket: incus_storage_bucket.bucket1.name
+              dependencies:
+                incus_storage_bucket.bucket1: |-
+                    {
+                      "name": "mybucket",
+                      "pool": "${incus_storage_pool.pool1.name}"
+                    }
+                incus_storage_pool.pool1: |-
+                    {
+                      "driver": "zfs",
+                      "name": "mypool"
+                    }
+            - name: mykey
+              manifest: |-
+                {
+                  "name": "mykey",
+                  "pool": "pool1",
+                  "project": "proj",
+                  "storage_bucket": "bucket1"
+                }
+        argumentDocs:
+            <name>: '- Required - Storage bucket name.'
+            <pool>: '- Required - Storage pool name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            access_key: '- Access key of the storage bucket key.'
+            description: '- Optional - Description of the storage bucket key.'
+            name: '- Required - Name of the storage bucket key.'
+            pool: '- Required - Name of storage pool to host the storage bucket key.'
+            project: '- Optional - Name of the project where the storage bucket key will be stored.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            role: |-
+                - Optional - Name of the role that controls the access rights for the
+                key. If not specified, the default role is used, as described in the official documentation.
+            secret_key: '- Secret key of the storage bucket key.'
+            storage_bucket: '- Required - Name of the storage bucket.'
+        importStatements:
+            - terraform import incus_storage_bucket_key.key1 proj/pool1/bucket1/key1
+    incus_storage_pool:
+        subCategory: ""
+        name: incus_storage_pool
+        title: ""
+        examples:
+            - name: pool1
+              manifest: |-
+                {
+                  "config": {
+                    "source": "/var/lib/incus/storage-pools/mypool"
+                  },
+                  "driver": "dir",
+                  "name": "mypool"
+                }
+            - name: mypool_node1
+              manifest: |-
+                {
+                  "driver": "zfs",
+                  "name": "mypool",
+                  "target": "node1"
+                }
+            - name: mypool_node2
+              manifest: |-
+                {
+                  "driver": "zfs",
+                  "name": "mypool",
+                  "target": "node2"
+                }
+            - name: mypool
+              manifest: |-
+                {
+                  "depends_on": [
+                    "${incus_storage_pool.mypool_node1}",
+                    "${incus_storage_pool.mypool_node2}"
+                  ],
+                  "driver": "zfs",
+                  "name": "mypool"
+                }
+            - name: mypool
+              manifest: |-
+                {
+                  "driver": "zfs",
+                  "name": "pool1",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <name>: '- Required - Storage pool name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                storage pool config settings.
+                Config settings vary from driver to driver.
+            description: '- Optional - Description of the storage pool. description is mutual exclusive with target. The description can only be set on cluster level (with target not set) or on non-clustered setups.'
+            dir: ""
+            driver: '- Required - Storage Pool driver. Must be one of dir, zfs, lvm, lvmcluster, btrfs, ceph, cephfs, cephobject, linstor or truenas.'
+            linstor: ""
+            lvm: ""
+            lvmcluster: ""
+            name: '- Required - Name of the storage pool.'
+            project: '- Optional - Name of the project where the storage pool will be stored.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            target: '- Optional - Specify a target node in a cluster.'
+            truenas: ""
+            zfs: ""
+        importStatements:
+            - terraform import incus_storage_pool.mypool proj/pool1
+    incus_storage_volume:
+        subCategory: ""
+        name: incus_storage_volume
+        title: ""
+        examples:
+            - name: volume1
+              manifest: |-
+                {
+                  "name": "myvolume",
+                  "pool": "${incus_storage_pool.pool1.name}"
+                }
+              references:
+                pool: incus_storage_pool.pool1.name
+              dependencies:
+                incus_storage_pool.pool1: |-
+                    {
+                      "driver": "zfs",
+                      "name": "mypool"
+                    }
+            - name: volume1_copy
+              manifest: |-
+                {
+                  "name": "myvolume_copy",
+                  "pool": "default",
+                  "source_volume": {
+                    "name": "${incus_storage_volume_volume1.name}",
+                    "pool": "${incus_storage_pool.pool1.name}"
+                  }
+                }
+              dependencies:
+                incus_storage_pool.pool1: |-
+                    {
+                      "driver": "zfs",
+                      "name": "mypool"
+                    }
+            - name: volume_from_backup
+              manifest: |-
+                {
+                  "name": "restored-volume",
+                  "pool": "default",
+                  "source_file": "/path/to/volume.backup"
+                }
+            - name: volume1
+              manifest: |-
+                {
+                  "file": [
+                    {
+                      "create_directories": true,
+                      "gid": 1000,
+                      "mode": "0644",
+                      "source_path": "config.conf",
+                      "target_path": "/etc/app/config.conf",
+                      "uid": 1000
+                    }
+                  ],
+                  "name": "my-config-vol",
+                  "pool": "${incus_storage_pool.pool1.name}",
+                  "project": "default"
+                }
+              references:
+                pool: incus_storage_pool.pool1.name
+              dependencies:
+                incus_storage_pool.pool1: |-
+                    {
+                      "driver": "zfs",
+                      "name": "mypool"
+                    }
+            - name: myvol
+              manifest: |-
+                {
+                  "name": "vol1",
+                  "pool": "pool1",
+                  "project": "proj"
+                }
+        argumentDocs:
+            <name>: '- Required - Volume name.'
+            <pool>: '- Required - Storage pool name.'
+            <project>: '- Optional - Project name.'
+            <remote>: '- Optional - Remote name.'
+            config: |-
+                - Optional - Map of key/value pairs of
+                volume config settings.
+                Config settings vary depending on the Storage Pool used.
+            content_type: '- Optional - Volume content type (filesystem or block)'
+            description: '- Optional - Description of the volume.'
+            disk: .
+            file: '- Optional - File to upload to the storage volume. See reference below.'
+            file.content: |-
+                - Optional - The contents of the file. Mutually exclusive with source_path.
+                Use the file() function to read in the content of a file from disk.
+            file.create_directories: |-
+                - Optional - Whether to create the directories leading
+                to the target if they do not exist.
+            file.gid: '- Optional - The GID of the file. Must be an unquoted integer.'
+            file.mode: '- Optional - The octal permissions of the file, must be quoted. Defaults to 0755.'
+            file.source_path: |-
+                - Optional - The source path to a file to
+                copy to the volume. Mutually exclusive with content.
+            file.target_path: |-
+                - Required - The absolute path of the file on the volume,
+                including the filename.
+            file.uid: '- Optional - The UID of the file. Must be an unquoted integer.'
+            location: '- Name of the node where volume was created. It could be useful with Incus in cluster mode.'
+            name: '- Required - Name of the storage volume.'
+            pool: '- Required - Name of storage pool to host the volume.'
+            project: '- Optional - Name of the project where the volume will be stored.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            source_file: '- Optional - Path to a backup file from which the volume will be created.'
+            source_volume: '- Optional - The source volume from which the volume will be created. See reference below.'
+            source_volume.name: '- Required - Name of the storage volume.'
+            source_volume.pool: '- Required - The storage pool that will receive the copy of the volume copy.'
+            source_volume.remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+            target: '- Optional - Specify a target node in a cluster.'
+            type: |-
+                - Optional - The "type" of volume. The default value is custom,
+                which is the type to use for storage volumes attached to instances.
+        importStatements:
+            - terraform import incus_storage_volume.myvol proj/pool1/vol1
+    network_load_balancer:
+        subCategory: ""
+        name: network_load_balancer
+        title: ""
+        argumentDocs:
+            backend: '- Optional - Load balancer''s backend definition. See reference below.'
+            backend.description: '- Optional - Description of the load balancer''s backend.'
+            backend.name: '- Required - Name of the load balancer''s backend.'
+            backend.target_address: '- Required - IP address to forward to.'
+            backend.target_port: '- Optional - Target port(s) (e.g. 80, 80,32000-32080). Default: listen_port of the corresponding port block'
+            config: '- Optional - Map of key/value pairs network load balancer config settings'
+            description: '- Optional - Description of the network load balancer.'
+            listen_address: '- Required - IP address to listen on. Also, see the Requirements for listen address in the official Incus documentation.'
+            network: '- Required - Name of the uplink network.'
+            port: '- Optional - Load balancer''s port definition. See reference below.'
+            port.description: '- Optional - Description of the load balancer''s port.'
+            port.listen_port: '- Required - Listen port(s) (e.g. 80, 80,32000-32080).'
+            port.protocol: '- Optional - Protocol of the port(s). Can be either tcp or udp. Default: tcp'
+            port.target_backend: '- Required - Backend name(s) to forward to.'
+            project: '- Optional - Name of the project where the load balancer will be spawned.'
+            remote: |-
+                - Optional - The remote in which the resource will be created. If
+                not provided, the provider's default remote will be used.
+        importStatements: []

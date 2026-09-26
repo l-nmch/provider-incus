@@ -1,0 +1,95 @@
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: Network
+metadata:
+  name: xptest-net
+  namespace: xptest
+spec:
+  forProvider:
+    name: xptest-net
+    projectRef:
+      name: xptest
+    type: ovn
+    description: e2e OVN network
+    config:
+      network: UPLINK
+      ipv4.address: 10.250.0.1/24
+      ipv4.nat: "true"
+      ipv6.address: none
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: Network
+metadata:
+  name: xptest-net2
+  namespace: xptest
+spec:
+  forProvider:
+    name: xptest-net2
+    projectRef:
+      name: xptest
+    type: ovn
+    config:
+      network: UPLINK
+      ipv4.address: 10.251.0.1/24
+      ipv4.nat: "true"
+      ipv6.address: none
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: ACL
+metadata:
+  name: xptest-acl
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    description: e2e ACL
+    ingress:
+      - action: allow
+        source: 10.250.0.0/24
+        destinationPort: "22"
+        protocol: tcp
+        state: enabled
+    egress:
+      - action: reject
+        destination: 1.1.1.1
+        state: enabled
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: AddressSet
+metadata:
+  name: xptest-as
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    addresses:
+      - 10.250.0.10
+      - 10.250.0.11
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: Zone
+metadata:
+  name: xptest-zone
+  namespace: xptest
+spec:
+  forProvider:
+    name: xptest.example.internal
+    projectRef:
+      name: xptest
+    description: e2e DNS zone
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default

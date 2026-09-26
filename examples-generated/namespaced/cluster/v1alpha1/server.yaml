@@ -1,0 +1,18 @@
+apiVersion: cluster.incus.m.crossplane.io/v1alpha1
+kind: Server
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cluster/v1alpha1/server
+  labels:
+    testing.upbound.io/example-name: test
+  name: test
+  namespace: crossplane-system
+spec:
+  forProvider:
+    config:
+      logging.loki01.lifecycle.types: instance
+      logging.loki01.target.address: https://loki01.int.example.net
+      logging.loki01.target.password: bar
+      logging.loki01.target.type: loki
+      logging.loki01.target.username: foo
+      logging.loki01.types: lifecycle,network-acl

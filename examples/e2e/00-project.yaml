@@ -1,0 +1,18 @@
+apiVersion: project.incus.m.crossplane.io/v1alpha1
+kind: Project
+metadata:
+  name: xptest
+  namespace: xptest
+spec:
+  forProvider:
+    description: crossplane provider-incus e2e
+    config:
+      features.images: "true"
+      features.networks: "true"
+      features.networks.zones: "true"
+      features.profiles: "true"
+      features.storage.buckets: "true"
+      features.storage.volumes: "true"
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default

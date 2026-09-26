@@ -1,0 +1,139 @@
+apiVersion: instance.incus.m.crossplane.io/v1alpha1
+kind: Instance
+metadata:
+  name: xptest-c1
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    image: images:alpine/3.22
+    type: container
+    profilesRefs:
+      - name: xptest-profile
+    config:
+      user.role: e2e
+    device:
+      - name: data
+        type: disk
+        properties:
+          pool: remote
+          source: xptest-vol
+          path: /data
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: instance.incus.m.crossplane.io/v1alpha1
+kind: Snapshot
+metadata:
+  name: xptest-snap1
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    instanceRef:
+      name: xptest-c1
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: ZoneRecord
+metadata:
+  name: xptest-www
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    zoneRef:
+      name: xptest-zone
+    entry:
+      - type: A
+        value: 10.250.0.10
+        ttl: 300
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: Peer
+metadata:
+  name: xptest-peer-a
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    networkRef:
+      name: xptest-net
+    targetProject: xptest
+    targetNetworkRef:
+      name: xptest-net2
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: Peer
+metadata:
+  name: xptest-peer-b
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    networkRef:
+      name: xptest-net2
+    targetProject: xptest
+    targetNetworkRef:
+      name: xptest-net
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: Forward
+metadata:
+  name: xptest-fwd
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    networkRef:
+      name: xptest-net
+    listenAddress: ${XPTEST_FWD_ADDR}
+    ports:
+      - protocol: tcp
+        listenPort: "2222"
+        targetAddress: 10.250.0.10
+        targetPort: "22"
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+---
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: xptest-lb
+  namespace: xptest
+spec:
+  forProvider:
+    projectRef:
+      name: xptest
+    networkRef:
+      name: xptest-net2
+    listenAddress: ${XPTEST_LB_ADDR}
+    backend:
+      - name: b1
+        targetAddress: 10.251.0.10
+        targetPort: "80"
+    port:
+      - listenPort: "8080"
+        targetBackend: [b1]
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default

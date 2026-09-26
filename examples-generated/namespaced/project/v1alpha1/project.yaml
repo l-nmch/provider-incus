@@ -1,0 +1,35 @@
+apiVersion: project.incus.m.crossplane.io/v1alpha1
+kind: Project
+metadata:
+  annotations:
+    meta.upbound.io/example-id: project/v1alpha1/project
+  labels:
+    testing.upbound.io/example-name: project
+  name: project
+  namespace: crossplane-system
+spec:
+  forProvider:
+    config:
+      features.images: false
+      features.profiles: false
+      features.storage.buckets: false
+      features.storage.volumes: false
+    description: Terraform provider example project
+
+---
+
+apiVersion: instance.incus.m.crossplane.io/v1alpha1
+kind: Instance
+metadata:
+  annotations:
+    meta.upbound.io/example-id: project/v1alpha1/project
+  labels:
+    testing.upbound.io/example-name: instance
+  name: instance
+  namespace: crossplane-system
+spec:
+  forProvider:
+    image: images:alpine/edge/amd64
+    projectSelector:
+      matchLabels:
+        testing.upbound.io/example-name: project

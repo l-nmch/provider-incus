@@ -1,0 +1,37 @@
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: Zone
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/zone
+  labels:
+    testing.upbound.io/example-name: zone
+  name: zone
+  namespace: crossplane-system
+spec:
+  forProvider:
+    config:
+      dns.nameservers: ns.custom.example.org
+      peers.ns.address: 127.0.0.1
+    name: custom.example.org
+
+---
+
+apiVersion: network.incus.m.crossplane.io/v1alpha1
+kind: ZoneRecord
+metadata:
+  annotations:
+    meta.upbound.io/example-id: network/v1alpha1/zone
+  labels:
+    testing.upbound.io/example-name: record
+  name: record
+  namespace: crossplane-system
+spec:
+  forProvider:
+    entry:
+    - type: CNAME
+      value: <incus.host.name>.
+    - type: A
+      value: <incus.host.ip>
+    zoneSelector:
+      matchLabels:
+        testing.upbound.io/example-name: zone
