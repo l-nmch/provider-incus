@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>provider-incus</title>
+  <rect width="256" height="256" rx="48" fill="#1f2a44"/>
+  <!-- Three stacked isometric blocks: instances managed as declarative resources. -->
+  <g stroke="#1f2a44" stroke-width="4" stroke-linejoin="round">
+    <g transform="translate(0 56)">
+      <path d="M128 76 L196 112 L128 148 L60 112 Z" fill="#9aa8c7"/>
+      <path d="M60 112 L128 148 L128 172 L60 136 Z" fill="#5c6b8f"/>
+      <path d="M196 112 L128 148 L128 172 L196 136 Z" fill="#76849f"/>
+    </g>
+    <g transform="translate(0 16)">
+      <path d="M128 76 L196 112 L128 148 L60 112 Z" fill="#8fd3c7"/>
+      <path d="M60 112 L128 148 L128 172 L60 136 Z" fill="#3f9e8f"/>
+      <path d="M196 112 L128 148 L128 172 L196 136 Z" fill="#5cb8a9"/>
+    </g>
+    <g transform="translate(0 -24)">
+      <path d="M128 76 L196 112 L128 148 L60 112 Z" fill="#ffb37a"/>
+      <path d="M60 112 L128 148 L128 172 L60 136 Z" fill="#e0703a"/>
+      <path d="M196 112 L128 148 L128 172 L196 136 Z" fill="#f28c52"/>
+    </g>
+  </g>
+</svg>

@@ -3,4 +3,4 @@ kind: Provider
 metadata:
   name: provider-incus
 spec:
-  package: ghcr.io/l-nmch/provider-incus:v0.1.0
+  package: xpkg.upbound.io/l-nmch/provider-incus:v0.1.2
