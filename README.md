@@ -165,3 +165,18 @@ with `envsubst`.
 4. `hack/e2e/cleanup.sh [kube-context] [ssh-target]` idempotently removes
    whatever is left on both sides (including the temporary certificate), and
    `hack/e2e/snapshot.sh | diff before.json -` must come out empty.
+
+## License
+
+This provider is licensed under the [Apache License 2.0](LICENSE).
+
+Its container image also ships third-party binaries, redistributed unmodified
+under their own license, whose source code is available upstream:
+
+| Component | Version | License | Source |
+|---|---|---|---|
+| Terraform CLI | 1.5.7 | MPL-2.0 | https://github.com/hashicorp/terraform/tree/v1.5.7 |
+| terraform-provider-incus | 1.2.0 | MPL-2.0 | https://github.com/lxc/terraform-provider-incus/tree/v1.2.0 |
+
+Resource and field descriptions in the CRDs are derived from the
+terraform-provider-incus documentation (MPL-2.0).
