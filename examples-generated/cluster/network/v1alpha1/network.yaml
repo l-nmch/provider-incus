@@ -28,7 +28,9 @@ metadata:
 spec:
   forProvider:
     ephemeral: false
-    image: ubuntu
+    imageSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
     profilesRefs:
     - name: profile1
 

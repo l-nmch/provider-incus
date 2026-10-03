@@ -17,7 +17,7 @@ kind: Provider
 metadata:
   name: provider-incus
 spec:
-  package: xpkg.upbound.io/l-nmch/provider-incus:v0.1.3
+  package: xpkg.upbound.io/l-nmch/provider-incus:v0.1.4
 ```
 
 ```console
@@ -144,6 +144,11 @@ Good to know:
 - In an Incus cluster, a storage pool or a non-OVN network is first defined on
   each member (one resource per member with `target`), then created
   cluster-wide by a resource without `target` sharing the same name.
+- An `Instance` can reference a managed `Image` with `imageRef`/`imageSelector`
+  instead of `image`: it then waits for the image to exist and uses its
+  fingerprint.
+- An `Image` is identified by `<remote>:<fingerprint>` once created; set the
+  `crossplane.io/external-name` annotation to a fingerprint to import one.
 - `BucketKey` publishes `access_key` and `secret_key` through
   `writeConnectionSecretToRef`.
 

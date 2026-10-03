@@ -17,6 +17,13 @@ func Configure(p *config.Provider) {
 		r.References["profiles"] = config.Reference{
 			TerraformName: "incus_profile",
 		}
+		// A managed Image is referenced by fingerprint, which Incus accepts
+		// in place of an alias and which is only known once the image
+		// exists, so the instance waits for it instead of racing it.
+		r.References["image"] = config.Reference{
+			TerraformName: "incus_image",
+			Extractor:     `github.com/crossplane/upjet/v2/pkg/resource.ExtractParamPath("fingerprint", true)`,
+		}
 		// Resolved from the image by the server, and conflicts with "image".
 		r.LateInitializer.IgnoredFields = append(r.LateInitializer.IgnoredFields, "architecture")
 	})

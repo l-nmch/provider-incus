@@ -27,4 +27,6 @@ metadata:
 spec:
   forProvider:
     ephemeral: false
-    image: ${incus_image.alpine.fingerprint}
+    imageSelector:
+      matchLabels:
+        testing.upbound.io/example-name: alpine

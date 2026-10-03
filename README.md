@@ -35,17 +35,25 @@ cluster-scoped (`*.incus.crossplane.io`) managed resources.
 | `network` | `ZoneRecord` | `incus_network_zone_record` | `metadata.name` |
 
 Resources identified by `metadata.name` use it as the Incus name unless the
-`crossplane.io/external-name` annotation says otherwise. Pools and networks
+`crossplane.io/external-name` annotation says otherwise. An image's external
+name is set to `<remote>:<fingerprint>` once it exists; set it to a bare
+fingerprint to import an existing image. Pools and networks
 keep their name in the spec because a cluster needs several managed resources
 with the same Incus name (see below); zones do because DNS names contain dots,
 which Terraform doesn't allow in resource names.
 
 Project-scoped resources accept `projectRef`/`projectSelector`; other
-cross-resource references: `profilesRefs` (Instance), `instanceRef`
+cross-resource references: `imageRef` and `profilesRefs` (Instance),
+`instanceRef`
 (Snapshot), `poolRef` (Volume, Bucket, BucketKey), `storageBucketRef`
 (BucketKey), `networkRef` (Forward, LoadBalancer, Peer), `targetNetworkRef` /
 `targetIntegrationRef` (Peer), `zoneRef` (ZoneRecord), `projectsRefs`
 (Certificate).
+
+An Instance's `imageRef`/`imageSelector` points at a managed `Image` and
+resolves to its fingerprint once the image exists, so the instance is created
+after the image instead of failing until it shows up. `image` still accepts any
+image Incus resolves, such as `images:alpine/3.22` or a local alias.
 
 ## Configuration
 
@@ -134,11 +142,15 @@ the provider works around in a few places:
 - storage volumes get `type = "custom"` before the first refresh, since the
   Terraform provider reads a volume by type and only applies that default on
   create;
-- images get their read-only `resource_id` seeded in memory before the
-  refresh (the external name once known, a placeholder before creation);
+- images get their read-only `resource_id` seeded before the refresh (the
+  external name once known, a placeholder before creation);
 - cluster-wide pools and networks are refreshed under an impossible name until
   created, since the pending definition would otherwise be found and updated
   instead of created;
+- these seeded values are stored in the status rather than only set in memory:
+  on the first reconcile, resolving references patches the object and replaces
+  it with the stored one before upjet writes the Terraform state, which it
+  never rewrites afterwards;
 - network forward ports get an empty `description` when unset, since the
   Terraform provider reads it back as `""` and would otherwise taint the
   forward after creation.

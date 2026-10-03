@@ -69,7 +69,7 @@ func TestPendingAwareInitializer(t *testing.T) {
 			if err := v1alpha1.SchemeBuilder.AddToScheme(s); err != nil {
 				t.Fatal(err)
 			}
-			kube := fake.NewClientBuilder().WithScheme(s).WithObjects(append(tc.others, tc.mg)...).Build()
+			kube := fake.NewClientBuilder().WithScheme(s).WithObjects(append(tc.others, tc.mg)...).WithStatusSubresource(&v1alpha1.Pool{}).Build()
 			if err := kube.Get(context.Background(), client.ObjectKeyFromObject(tc.mg), tc.mg); err != nil {
 				t.Fatal(err)
 			}
@@ -83,6 +83,12 @@ func TestPendingAwareInitializer(t *testing.T) {
 			stored := &v1alpha1.Pool{}
 			if err := kube.Get(context.Background(), client.ObjectKeyFromObject(tc.mg), stored); err != nil {
 				t.Fatal(err)
+			}
+			// The seeded name must be stored, not only set in memory: resolving
+			// references next replaces the object with the stored one.
+			storedObs, _ := stored.GetObservation()
+			if seeded := storedObs["name"] != nil && storedObs["name"] != "pool"; seeded != tc.wantSeeded {
+				t.Errorf("seeded name persisted = %v (name %v), want %v", seeded, storedObs["name"], tc.wantSeeded)
 			}
 			if _, ok := stored.GetAnnotations()[common.AnnotationKeyCreated]; ok != tc.wantCreated {
 				t.Errorf("created annotation persisted = %v, want %v", ok, tc.wantCreated)
