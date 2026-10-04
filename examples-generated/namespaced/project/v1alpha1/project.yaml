@@ -29,7 +29,9 @@ metadata:
   namespace: crossplane-system
 spec:
   forProvider:
-    image: images:alpine/edge/amd64
+    imageSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
     projectSelector:
       matchLabels:
         testing.upbound.io/example-name: project

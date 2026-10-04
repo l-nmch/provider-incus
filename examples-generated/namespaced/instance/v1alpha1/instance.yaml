@@ -12,4 +12,6 @@ spec:
     config:
       boot.autostart: true
       limits.cpu: 2
-    image: images:ubuntu/22.04
+    imageSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example

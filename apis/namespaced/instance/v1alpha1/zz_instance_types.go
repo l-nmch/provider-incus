@@ -304,7 +304,17 @@ type InstanceInitParameters struct {
 
 	// Optional - Base image from which the instance will be created. Must
 	// specify an image accessible from the provider remote.
+	// +crossplane:generate:reference:type=github.com/l-nmch/provider-incus/apis/namespaced/image/v1alpha1.Image
+	// +crossplane:generate:reference:extractor=github.com/crossplane/upjet/v2/pkg/resource.ExtractParamPath("fingerprint", true)
 	Image *string `json:"image,omitempty" tf:"image,omitempty"`
+
+	// Reference to a Image in image to populate image.
+	// +kubebuilder:validation:Optional
+	ImageRef *v2.NamespacedReference `json:"imageRef,omitempty" tf:"-"`
+
+	// Selector for a Image in image to populate image.
+	// +kubebuilder:validation:Optional
+	ImageSelector *v2.NamespacedSelector `json:"imageSelector,omitempty" tf:"-"`
 
 	// Optional - List of Incus config profiles to apply to the new
 	// instance. Profile default will be applied if profiles are not set (are null).
@@ -477,8 +487,18 @@ type InstanceParameters struct {
 
 	// Optional - Base image from which the instance will be created. Must
 	// specify an image accessible from the provider remote.
+	// +crossplane:generate:reference:type=github.com/l-nmch/provider-incus/apis/namespaced/image/v1alpha1.Image
+	// +crossplane:generate:reference:extractor=github.com/crossplane/upjet/v2/pkg/resource.ExtractParamPath("fingerprint", true)
 	// +kubebuilder:validation:Optional
 	Image *string `json:"image,omitempty" tf:"image,omitempty"`
+
+	// Reference to a Image in image to populate image.
+	// +kubebuilder:validation:Optional
+	ImageRef *v2.NamespacedReference `json:"imageRef,omitempty" tf:"-"`
+
+	// Selector for a Image in image to populate image.
+	// +kubebuilder:validation:Optional
+	ImageSelector *v2.NamespacedSelector `json:"imageSelector,omitempty" tf:"-"`
 
 	// Optional - List of Incus config profiles to apply to the new
 	// instance. Profile default will be applied if profiles are not set (are null).

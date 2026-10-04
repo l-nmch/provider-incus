@@ -9,8 +9,10 @@ package v1alpha1
 import (
 	"context"
 	reference "github.com/crossplane/crossplane-runtime/v2/pkg/reference"
-	v1alpha1 "github.com/l-nmch/provider-incus/apis/cluster/profile/v1alpha1"
-	v1alpha11 "github.com/l-nmch/provider-incus/apis/cluster/project/v1alpha1"
+	resource "github.com/crossplane/upjet/v2/pkg/resource"
+	v1alpha1 "github.com/l-nmch/provider-incus/apis/cluster/image/v1alpha1"
+	v1alpha11 "github.com/l-nmch/provider-incus/apis/cluster/profile/v1alpha1"
+	v1alpha12 "github.com/l-nmch/provider-incus/apis/cluster/project/v1alpha1"
 	errors "github.com/pkg/errors"
 	client "sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -23,6 +25,23 @@ func (mg *Instance) ResolveReferences(ctx context.Context, c client.Reader) erro
 	var mrsp reference.MultiResolutionResponse
 	var err error
 
+	rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+		CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.Image),
+		Extract:      resource.ExtractParamPath("fingerprint", true),
+		Namespace:    mg.GetNamespace(),
+		Reference:    mg.Spec.ForProvider.ImageRef,
+		Selector:     mg.Spec.ForProvider.ImageSelector,
+		To: reference.To{
+			List:    &v1alpha1.ImageList{},
+			Managed: &v1alpha1.Image{},
+		},
+	})
+	if err != nil {
+		return errors.Wrap(err, "mg.Spec.ForProvider.Image")
+	}
+	mg.Spec.ForProvider.Image = reference.ToPtrValue(rsp.ResolvedValue)
+	mg.Spec.ForProvider.ImageRef = rsp.ResolvedReference
+
 	mrsp, err = r.ResolveMultiple(ctx, reference.MultiResolutionRequest{
 		CurrentValues: reference.FromPtrValues(mg.Spec.ForProvider.Profiles),
 		Extract:       reference.ExternalName(),
@@ -30,8 +49,8 @@ func (mg *Instance) ResolveReferences(ctx context.Context, c client.Reader) erro
 		References:    mg.Spec.ForProvider.ProfilesRefs,
 		Selector:      mg.Spec.ForProvider.ProfilesSelector,
 		To: reference.To{
-			List:    &v1alpha1.ProfileList{},
-			Managed: &v1alpha1.Profile{},
+			List:    &v1alpha11.ProfileList{},
+			Managed: &v1alpha11.Profile{},
 		},
 	})
 	if err != nil {
@@ -47,8 +66,8 @@ func (mg *Instance) ResolveReferences(ctx context.Context, c client.Reader) erro
 		Reference:    mg.Spec.ForProvider.ProjectRef,
 		Selector:     mg.Spec.ForProvider.ProjectSelector,
 		To: reference.To{
-			List:    &v1alpha11.ProjectList{},
-			Managed: &v1alpha11.Project{},
+			List:    &v1alpha12.ProjectList{},
+			Managed: &v1alpha12.Project{},
 		},
 	})
 	if err != nil {
@@ -57,6 +76,23 @@ func (mg *Instance) ResolveReferences(ctx context.Context, c client.Reader) erro
 	mg.Spec.ForProvider.Project = reference.ToPtrValue(rsp.ResolvedValue)
 	mg.Spec.ForProvider.ProjectRef = rsp.ResolvedReference
 
+	rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+		CurrentValue: reference.FromPtrValue(mg.Spec.InitProvider.Image),
+		Extract:      resource.ExtractParamPath("fingerprint", true),
+		Namespace:    mg.GetNamespace(),
+		Reference:    mg.Spec.InitProvider.ImageRef,
+		Selector:     mg.Spec.InitProvider.ImageSelector,
+		To: reference.To{
+			List:    &v1alpha1.ImageList{},
+			Managed: &v1alpha1.Image{},
+		},
+	})
+	if err != nil {
+		return errors.Wrap(err, "mg.Spec.InitProvider.Image")
+	}
+	mg.Spec.InitProvider.Image = reference.ToPtrValue(rsp.ResolvedValue)
+	mg.Spec.InitProvider.ImageRef = rsp.ResolvedReference
+
 	mrsp, err = r.ResolveMultiple(ctx, reference.MultiResolutionRequest{
 		CurrentValues: reference.FromPtrValues(mg.Spec.InitProvider.Profiles),
 		Extract:       reference.ExternalName(),
@@ -64,8 +100,8 @@ func (mg *Instance) ResolveReferences(ctx context.Context, c client.Reader) erro
 		References:    mg.Spec.InitProvider.ProfilesRefs,
 		Selector:      mg.Spec.InitProvider.ProfilesSelector,
 		To: reference.To{
-			List:    &v1alpha1.ProfileList{},
-			Managed: &v1alpha1.Profile{},
+			List:    &v1alpha11.ProfileList{},
+			Managed: &v1alpha11.Profile{},
 		},
 	})
 	if err != nil {
@@ -81,8 +117,8 @@ func (mg *Instance) ResolveReferences(ctx context.Context, c client.Reader) erro
 		Reference:    mg.Spec.InitProvider.ProjectRef,
 		Selector:     mg.Spec.InitProvider.ProjectSelector,
 		To: reference.To{
-			List:    &v1alpha11.ProjectList{},
-			Managed: &v1alpha11.Project{},
+			List:    &v1alpha12.ProjectList{},
+			Managed: &v1alpha12.Project{},
 		},
 	})
 	if err != nil {
@@ -125,8 +161,8 @@ func (mg *Snapshot) ResolveReferences(ctx context.Context, c client.Reader) erro
 		Reference:    mg.Spec.ForProvider.ProjectRef,
 		Selector:     mg.Spec.ForProvider.ProjectSelector,
 		To: reference.To{
-			List:    &v1alpha11.ProjectList{},
-			Managed: &v1alpha11.Project{},
+			List:    &v1alpha12.ProjectList{},
+			Managed: &v1alpha12.Project{},
 		},
 	})
 	if err != nil {
@@ -159,8 +195,8 @@ func (mg *Snapshot) ResolveReferences(ctx context.Context, c client.Reader) erro
 		Reference:    mg.Spec.InitProvider.ProjectRef,
 		Selector:     mg.Spec.InitProvider.ProjectSelector,
 		To: reference.To{
-			List:    &v1alpha11.ProjectList{},
-			Managed: &v1alpha11.Project{},
+			List:    &v1alpha12.ProjectList{},
+			Managed: &v1alpha12.Project{},
 		},
 	})
 	if err != nil {

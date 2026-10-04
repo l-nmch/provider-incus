@@ -19,12 +19,14 @@ import (
 // 63 characters Incus allows), so Terraform reads it as not found.
 const notCreatedName = "crossplane-not-created-yet-placeholder-that-no-incus-object-can-ever-have"
 
-// SeedObservation sets the given Terraform attributes in the in-memory
-// observation when they are unset, before upjet builds the Terraform state
-// from the parameters and the observation. It is never persisted: the managed
-// reconciler hands this same object to Connect, and the real attributes are
-// observed once Terraform has refreshed or created the resource.
-func SeedObservation(mg xpresource.Managed, attrs map[string]any) error {
+// SeedObservation sets Terraform attributes in the observation, which upjet
+// merges over the parameters to build the Terraform state of a resource it has
+// no state for yet, and persists the status when they changed. Persisting is
+// what makes them reach Connect: on the first reconcile, resolving references
+// patches the object and replaces it in memory with the stored one, whose
+// observation would otherwise be empty, and upjet never rewrites a Terraform
+// state once written.
+func SeedObservation(ctx context.Context, kube client.Client, mg xpresource.Managed, attrs map[string]any) error {
 	tr, ok := mg.(resource.Terraformed)
 	if !ok {
 		return errors.New("managed resource is not Terraformed")
@@ -33,12 +35,20 @@ func SeedObservation(mg xpresource.Managed, attrs map[string]any) error {
 	if err != nil {
 		return errors.Wrap(err, "cannot get observation")
 	}
+	changed := false
 	for k, v := range attrs {
-		if s, _ := obs[k].(string); s == "" {
+		if obs[k] != v {
 			obs[k] = v
+			changed = true
 		}
 	}
-	return errors.Wrap(tr.SetObservation(obs), "cannot set observation")
+	if !changed {
+		return nil
+	}
+	if err := tr.SetObservation(obs); err != nil {
+		return errors.Wrap(err, "cannot set observation")
+	}
+	return errors.Wrap(kube.Status().Update(ctx, mg), "cannot persist observation")
 }
 
 // AnnotationKeyCreated marks cluster-wide pools and networks whose creation
@@ -78,12 +88,7 @@ func PendingAwareInitializer(kube client.Client) managed.Initializer {
 			meta.AddAnnotations(mg, map[string]string{AnnotationKeyCreated: "true"})
 			return errors.Wrap(kube.Update(ctx, mg), "cannot record creation")
 		}
-		obs, err := tr.GetObservation()
-		if err != nil {
-			return errors.Wrap(err, "cannot get observation")
-		}
-		obs["name"] = notCreatedName
-		return errors.Wrap(tr.SetObservation(obs), "cannot set observation")
+		return SeedObservation(ctx, kube, mg, map[string]any{"name": notCreatedName})
 	})
 }
 
