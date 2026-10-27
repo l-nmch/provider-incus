@@ -1,3 +1,24 @@
+# Build terraform-provider-incus from source instead of downloading the released binary: the
+# release is built with a Go and a golang.org/x/net that carry known vulnerabilities (govulncheck
+# on the binary). Built on the build platform, cross-compiled for the target.
+FROM --platform=$BUILDPLATFORM golang:1.26.10-alpine AS tfprovider
+RUN apk --no-cache add git
+ARG TARGETOS
+ARG TARGETARCH
+ARG TERRAFORM_PROVIDER_REPO
+ARG TERRAFORM_PROVIDER_VERSION
+ARG TERRAFORM_NATIVE_PROVIDER_BINARY
+RUN git clone --depth 1 --branch "v${TERRAFORM_PROVIDER_VERSION}" "${TERRAFORM_PROVIDER_REPO}" /src
+WORKDIR /src
+# Dependencies raised on top of the pinned release, tracked by Renovate through the markers: drop an
+# ARG once the pinned release already requires at least that version.
+# renovate: datasource=go depName=golang.org/x/net
+ARG GO_X_NET_VERSION=v0.60.0
+RUN go get "golang.org/x/net@${GO_X_NET_VERSION}" && go mod tidy
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -trimpath -ldflags "-s -w -X main.version=${TERRAFORM_PROVIDER_VERSION}" \
+    -o "/out/${TERRAFORM_NATIVE_PROVIDER_BINARY}" .
+
 FROM alpine:3.23.4
 RUN apk --no-cache add ca-certificates bash
 
@@ -14,9 +35,7 @@ ENV USER_ID=65532
 ARG TERRAFORM_VERSION
 ARG TERRAFORM_PROVIDER_SOURCE
 ARG TERRAFORM_PROVIDER_VERSION
-ARG TERRAFORM_PROVIDER_DOWNLOAD_NAME
 ARG TERRAFORM_NATIVE_PROVIDER_BINARY
-ARG TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX
 
 ## End of - Provider-dependent configuration
 
@@ -27,16 +46,15 @@ ENV TF_FORK=0
 RUN mkdir -p ${PLUGIN_DIR}
 
 ADD https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip /tmp
-ADD ${TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX}/${TERRAFORM_PROVIDER_DOWNLOAD_NAME}_${TERRAFORM_PROVIDER_VERSION}_${TARGETOS}_${TARGETARCH}.zip /tmp
 ADD terraformrc.hcl ${TF_CLI_CONFIG_FILE}
 
 RUN unzip /tmp/terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip -d /usr/local/bin \
   && chmod +x /usr/local/bin/terraform \
   && rm /tmp/terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip \
-  && unzip /tmp/${TERRAFORM_PROVIDER_DOWNLOAD_NAME}_${TERRAFORM_PROVIDER_VERSION}_${TARGETOS}_${TARGETARCH}.zip -d ${PLUGIN_DIR} \
-  && chmod +x ${PLUGIN_DIR}/* \
-  && rm /tmp/${TERRAFORM_PROVIDER_DOWNLOAD_NAME}_${TERRAFORM_PROVIDER_VERSION}_${TARGETOS}_${TARGETARCH}.zip \
   && chown -R ${USER_ID}:${USER_ID} /terraform
+
+COPY --from=tfprovider --chown=${USER_ID}:${USER_ID} --chmod=0755 \
+  /out/${TERRAFORM_NATIVE_PROVIDER_BINARY} ${PLUGIN_DIR}/${TERRAFORM_NATIVE_PROVIDER_BINARY}
 # End of - Setup Terraform environment
 
 # Provider controller needs these environment variable at runtime

@@ -1,3 +1,13 @@
+# v0.1.5
+
+- Update terraform-provider-incus to v1.2.1, built from source with Go 1.26.10
+  and golang.org/x/net v0.60.0 instead of using the released binary, which
+  carries the vulnerable Go standard library and golang.org/x/net.
+- Build with Go 1.26.10 and golang.org/x/net v0.60.0, which fix the Go
+  standard library and HTTP/2 vulnerabilities reported by govulncheck.
+- Update Upjet to v2.5.1, which fixes null and empty collections being treated
+  as drift, and crossplane-runtime to the stable v2.4.3.
+
 # v0.1.4
 
 - Fix `Image` never syncing when it references a project (or has an external
