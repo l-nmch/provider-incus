@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.6](https://github.com/l-nmch/provider-incus/compare/v0.1.5...v0.1.6) (2026-10-27)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major go dependencies ([8964293](https://github.com/l-nmch/provider-incus/commit/8964293ba40d88a843e9169b63509fbfe29079bb))
+* **deps:** update all non-major go dependencies ([044460d](https://github.com/l-nmch/provider-incus/commit/044460d0dc9f8307e6f5d9f2c9493b6cae6289e3))
+* **deps:** update k8s.io/utils digest to ca04ba5 ([001ec63](https://github.com/l-nmch/provider-incus/commit/001ec635f6f83f86d6dc3f629c10b65a2abdae09))
+* **deps:** update k8s.io/utils digest to ca04ba5 ([a3bfed4](https://github.com/l-nmch/provider-incus/commit/a3bfed4f853f73daf1f802105932f871fd6157e6))
+
 ## 0.1.5
 
 - Update terraform-provider-incus to v1.2.1, built from source with Go 1.26.10
