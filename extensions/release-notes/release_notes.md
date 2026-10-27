@@ -1,4 +1,6 @@
-# v0.1.5
+# Changelog
+
+## 0.1.5
 
 - Update terraform-provider-incus to v1.2.1, built from source with Go 1.26.10
   and golang.org/x/net v0.60.0 instead of using the released binary, which
@@ -8,7 +10,7 @@
 - Update Upjet to v2.5.1, which fixes null and empty collections being treated
   as drift, and crossplane-runtime to the stable v2.4.3.
 
-# v0.1.4
+## 0.1.4
 
 - Fix `Image` never syncing when it references a project (or has an external
   name that isn't `<remote>:<fingerprint>`): the Terraform provider crashed on
@@ -19,16 +21,16 @@
   managed `Image` and from its fingerprint (#2).
 - An image can be imported by setting its external name to its fingerprint.
 
-# v0.1.3
+## 0.1.3
 
 - Marketplace README with installation and configuration steps, and a
   dedicated icon, published through the package metadata.
 
-# v0.1.2
+## 0.1.2
 
 - Packaging only, superseded by v0.1.3.
 
-# v0.1.1
+## 0.1.1
 
 First release. All 21 resources of terraform-provider-incus v1.2.0, namespaced
 and cluster-scoped, for Crossplane v2.
