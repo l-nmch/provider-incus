@@ -11,14 +11,16 @@ https://github.com/l-nmch/provider-incus
 
 ## Install
 
+<!-- x-release-please-start-version -->
 ```yaml
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
   name: provider-incus
 spec:
-  package: xpkg.upbound.io/l-nmch/provider-incus:v0.1.4
+  package: xpkg.upbound.io/l-nmch/provider-incus:v0.1.5
 ```
+<!-- x-release-please-end -->
 
 ```console
 kubectl apply -f provider.yaml
