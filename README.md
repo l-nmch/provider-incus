@@ -178,6 +178,17 @@ with `envsubst`.
    whatever is left on both sides (including the temporary certificate), and
    `hack/e2e/snapshot.sh | diff before.json -` must come out empty.
 
+## Releasing
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/). [release-please](https://github.com/googleapis/release-please)
+keeps a `chore(main): release X.Y.Z` pull request open, with the next version computed from the commits since the last tag
+(`fix` is a patch, `feat` a minor, a breaking change a minor while the version is 0.x) and its entry added to
+[the release notes](extensions/release-notes/release_notes.md), the file shown on the marketplace.
+
+Merging that pull request creates the `vX.Y.Z` tag and the GitHub release, and the tag runs the *Publish Provider Package*
+workflow, which pushes the package to `ghcr.io` and `xpkg.upbound.io`. Nothing is published by hand: the workflow can still be
+started manually, with a `version`, to publish a test package.
+
 ## License
 
 This provider is licensed under the [Apache License 2.0](LICENSE).
