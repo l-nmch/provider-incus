@@ -4,7 +4,7 @@
 [Incus](https://linuxcontainers.org/incus/), generated with
 [Upjet](https://github.com/crossplane/upjet) from
 [`lxc/terraform-provider-incus`](https://github.com/lxc/terraform-provider-incus)
-**v1.2.0**. It targets Crossplane v2 and exposes every resource of the
+**v1.2.1**. It targets Crossplane v2 and exposes every resource of the
 Terraform provider, both as namespaced (`*.incus.m.crossplane.io`) and
 cluster-scoped (`*.incus.crossplane.io`) managed resources.
 
@@ -182,13 +182,15 @@ with `envsubst`.
 
 This provider is licensed under the [Apache License 2.0](LICENSE).
 
-Its container image also ships third-party binaries, redistributed unmodified
-under their own license, whose source code is available upstream:
+Its container image also ships third-party binaries, under their own license, whose source
+code is available upstream. Terraform is redistributed unmodified; terraform-provider-incus is
+built from the source of the tag below, with only `golang.org/x/net` raised to a version without
+known vulnerabilities (see the [Dockerfile](cluster/images/provider-incus/Dockerfile)):
 
 | Component | Version | License | Source |
 |---|---|---|---|
 | Terraform CLI | 1.5.7 | MPL-2.0 | https://github.com/hashicorp/terraform/tree/v1.5.7 |
-| terraform-provider-incus | 1.2.0 | MPL-2.0 | https://github.com/lxc/terraform-provider-incus/tree/v1.2.0 |
+| terraform-provider-incus | 1.2.1, built from source | MPL-2.0 | https://github.com/lxc/terraform-provider-incus/tree/v1.2.1 |
 
 Resource and field descriptions in the CRDs are derived from the
 terraform-provider-incus documentation (MPL-2.0).

@@ -1496,6 +1496,7 @@ resources:
             <name>: '- Required - Storage pool name.'
             <project>: '- Optional - Project name.'
             <remote>: '- Optional - Remote name.'
+            btrfs: ""
             config: |-
                 - Optional - Map of key/value pairs of
                 storage pool config settings.

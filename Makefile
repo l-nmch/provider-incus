@@ -12,9 +12,7 @@ TERRAFORM_VERSION_VALID := $(shell [ "$(TERRAFORM_VERSION)" = "`printf "$(TERRAF
 
 export TERRAFORM_PROVIDER_SOURCE ?= lxc/incus
 export TERRAFORM_PROVIDER_REPO ?= https://github.com/lxc/terraform-provider-incus
-export TERRAFORM_PROVIDER_VERSION ?= 1.2.0
-export TERRAFORM_PROVIDER_DOWNLOAD_NAME ?= terraform-provider-incus
-export TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX ?= https://github.com/lxc/terraform-provider-incus/releases/download/v$(TERRAFORM_PROVIDER_VERSION)
+export TERRAFORM_PROVIDER_VERSION ?= 1.2.1
 export TERRAFORM_NATIVE_PROVIDER_BINARY ?= terraform-provider-incus_v$(TERRAFORM_PROVIDER_VERSION)
 export TERRAFORM_DOCS_PATH ?= docs/resources
 

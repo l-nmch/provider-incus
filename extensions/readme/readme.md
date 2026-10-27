@@ -6,7 +6,7 @@ and cluster configuration as Kubernetes resources.
 
 Generated with [Upjet](https://github.com/crossplane/upjet) from
 [`lxc/terraform-provider-incus`](https://github.com/lxc/terraform-provider-incus)
-v1.2.0. Requires **Crossplane v2**. Source, issues and full documentation:
+v1.2.1. Requires **Crossplane v2**. Source, issues and full documentation:
 https://github.com/l-nmch/provider-incus
 
 ## Install
@@ -157,5 +157,5 @@ See the [README](https://github.com/l-nmch/provider-incus#readme) for details.
 ## License
 
 Apache-2.0. The image also ships Terraform 1.5.7 and terraform-provider-incus
-1.2.0, both MPL-2.0. This is a community provider, not affiliated with the
+1.2.1 (built from source, with golang.org/x/net raised), both MPL-2.0. This is a community provider, not affiliated with the
 Incus or Crossplane projects.
