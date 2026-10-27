@@ -1,7 +1,7 @@
 # Build terraform-provider-incus from source instead of downloading the released binary: the
 # release is built with a Go and a golang.org/x/net that carry known vulnerabilities (govulncheck
 # on the binary). Built on the build platform, cross-compiled for the target.
-FROM --platform=$BUILDPLATFORM golang:1.26.10-alpine AS tfprovider
+FROM --platform=$BUILDPLATFORM golang:1.27.3-alpine AS tfprovider
 RUN apk --no-cache add git
 ARG TARGETOS
 ARG TARGETARCH
