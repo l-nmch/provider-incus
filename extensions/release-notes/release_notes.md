@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.7](https://github.com/l-nmch/provider-incus/compare/v0.1.6...v0.1.7) (2026-10-29)
+
+
+### Bug Fixes
+
+* **deps:** update kubernetes monorepo to v0.37.2 ([ae17cd1](https://github.com/l-nmch/provider-incus/commit/ae17cd1992312c22b15a97c3462a94c3d63f8285))
+* **deps:** update kubernetes monorepo to v0.37.2 ([80cb0b4](https://github.com/l-nmch/provider-incus/commit/80cb0b4857c42017c00587adaa2a83a06edce3f2))
+
 ## [0.1.6](https://github.com/l-nmch/provider-incus/compare/v0.1.5...v0.1.6) (2026-10-27)
 
 
