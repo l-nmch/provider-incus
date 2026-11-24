@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.8](https://github.com/l-nmch/provider-incus/compare/v0.1.7...v0.1.8) (2026-11-24)
+
+
+### Bug Fixes
+
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.25.3 ([3dbc906](https://github.com/l-nmch/provider-incus/commit/3dbc906bec00d83c545874faa11c68570153c286))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.25.3 ([0f84253](https://github.com/l-nmch/provider-incus/commit/0f84253a77697f7fb371d77868a5d5a800f15e70))
+
 ## [0.1.7](https://github.com/l-nmch/provider-incus/compare/v0.1.6...v0.1.7) (2026-10-29)
 
 
