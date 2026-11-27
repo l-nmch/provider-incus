@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.9](https://github.com/l-nmch/provider-incus/compare/v0.1.8...v0.1.9) (2026-11-27)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major go dependencies ([b05b0cc](https://github.com/l-nmch/provider-incus/commit/b05b0cc5b55ec29a1204120bba6e72dde9d08eba))
+* **deps:** update all non-major go dependencies ([cabebd1](https://github.com/l-nmch/provider-incus/commit/cabebd1d164f49e2d6571b0f2d5518abda9eb7d9))
+* **deps:** update kubernetes patches to v0.37.3 ([aca8587](https://github.com/l-nmch/provider-incus/commit/aca85870db78b8c9f7c5691dd481b9be9d6d38a4))
+* **deps:** update kubernetes patches to v0.37.3 ([257bb5c](https://github.com/l-nmch/provider-incus/commit/257bb5c0508828b0b2c4aa2042a24a174e941384))
+
 ## [0.1.8](https://github.com/l-nmch/provider-incus/compare/v0.1.7...v0.1.8) (2026-11-24)
 
 
