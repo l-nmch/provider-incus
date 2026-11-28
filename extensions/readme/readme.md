@@ -18,7 +18,7 @@ kind: Provider
 metadata:
   name: provider-incus
 spec:
-  package: xpkg.upbound.io/l-nmch/provider-incus:v0.1.8
+  package: xpkg.upbound.io/l-nmch/provider-incus:v0.1.9
 ```
 <!-- x-release-please-end -->
 
